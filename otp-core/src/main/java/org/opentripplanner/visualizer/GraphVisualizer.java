@@ -349,7 +349,7 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
 	private JTextField sptFlattening;
 
 	private JTextField sptThickness;
-
+	
     public GraphVisualizer(GraphService graphService) {
         super();
         LOG.info("Starting up graph visualizer...");
@@ -369,12 +369,15 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
     }
     
     public void init() {
-        JTabbedPane tabbedPane = new JTabbedPane();
+        final JTabbedPane tabbedPane = new JTabbedPane();
+        
+        final Container mainTab = makeMainTab();
+        Container prefsPanel = makePrefsPanel();
          
-        tabbedPane.addTab("Main", null, makeMainTab(),
+        tabbedPane.addTab("Main", null, mainTab,
                 "Pretty much everything");
          
-        tabbedPane.addTab("Prefs", null, makePrefsPanel(),
+        tabbedPane.addTab("Prefs", null, prefsPanel,
                 "Routing preferences");
          
         //Add the tabbed pane to this panel.
@@ -387,6 +390,17 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
         showGraph.init();
         addWindowListener(new ExitListener());
         pack();
+        
+        tabbedPane.addChangeListener(new ChangeListener(){
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if( tabbedPane.getSelectedComponent().equals(mainTab) ){
+					showGraph.loop();	
+				} else{
+					showGraph.noLoop();
+				}
+			}
+        });
     }
 
 	private Container makeMainTab() {
