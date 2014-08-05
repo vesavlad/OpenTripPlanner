@@ -11,6 +11,13 @@
       <version>0.9.2-SNAPSHOT</version>
     </parent>
 
+    <repositories>
+      <repository>
+        <id>repo</id>
+        <url>file://${project.basedir}/repo</url>
+      </repository> 
+    </repositories>
+
     <dependencies>
     
       <!-- OTP MODULES -->
@@ -221,12 +228,6 @@
           <artifactId>onebusaway-gtfs</artifactId>
         </dependency>
         <dependency>
-          <!-- Processing is used for the debug GUI (though we could probably use just Java2D) -->
-          <groupId>org.processing</groupId>
-          <artifactId>core</artifactId>
-          <version>1.0.7</version>
-        </dependency>
-        <dependency>
           <!-- Google Protocol Buffers -->
           <groupId>com.google.protobuf</groupId>
           <artifactId>protobuf-java</artifactId>
@@ -330,7 +331,12 @@
           <artifactId>commons-math3</artifactId>
           <version>3.0</version>
         </dependency>
-
+        <dependency>
+        <!-- Processing is used for the debug GUI (though we could probably use just Java2D) -->
+          <groupId>processing</groupId>
+          <artifactId>core</artifactId>
+          <version>2.2</version>
+        </dependency>
     </dependencies>
     
     <build>

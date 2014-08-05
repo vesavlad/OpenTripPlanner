@@ -132,7 +132,7 @@ public class ShowGraph extends PApplet implements MouseWheelListener {
 
     boolean drawTransitStopVertices = true;
 
-    private static double lastLabelY;
+    private static float lastLabelY;
 
     private static final DecimalFormat latFormatter = new DecimalFormat("00.0000°N ; 00.0000°S");
 
@@ -308,7 +308,8 @@ public class ShowGraph extends PApplet implements MouseWheelListener {
      * Setup Processing applet
      */
     public void setup() {
-        size(getSize().width, getSize().height, P2D);
+    	/* Don't use P2D, or else the opengl prereqs are onerous */
+        size(getSize().width, getSize().height, JAVA2D);
 
         /* Build spatial index of vertices and edges */
         buildSpatialIndex();
@@ -477,7 +478,7 @@ public class ShowGraph extends PApplet implements MouseWheelListener {
         Coordinate[] coords = e.getGeometry().getCoordinates();
         beginShape();
         for (int i = 0; i < coords.length; i++)
-            vertex((float) toScreenX(coords[i].x), (float) toScreenY(coords[i].y));
+            vertex((float) toScreenX((float)coords[i].x), (float) toScreenY((float)coords[i].y));
         endShape();
         return coords.length; // should be used to count segments, not edges drawn
     }
@@ -487,8 +488,8 @@ public class ShowGraph extends PApplet implements MouseWheelListener {
         Coordinate[] coords = e.getGeometry().getCoordinates();
         Coordinate c0 = coords[0];
         Coordinate c1 = coords[coords.length - 1];
-        line((float) toScreenX(c0.x), (float) toScreenY(c0.y), (float) toScreenX(c1.x),
-                (float) toScreenY(c1.y));
+        line((float) toScreenX((float)c0.x), (float) toScreenY((float)c0.y), (float) toScreenX((float)c1.x),
+                (float) toScreenY((float)c1.y));
     }
 
     private void drawGraphPath(GraphPath gp) {
@@ -559,9 +560,9 @@ public class ShowGraph extends PApplet implements MouseWheelListener {
         drawVertex(v, 8);
         str += " " + shortDateFormat.format(new Date(s.getTimeSeconds() * 1000));
         str += " [" + (int) s.getWeight() + "]";
-        double x = toScreenX(v.getX()) + 10;
-        double y = toScreenY(v.getY());
-        double dy = y - lastLabelY;
+        float x = toScreenX((float)v.getX()) + 10;
+        float y = toScreenY((float)v.getY());
+        float dy = y - lastLabelY;
         if (dy == 0) {
             y = lastLabelY + 20;
         } else if (Math.abs(dy) < 20) {
@@ -573,7 +574,7 @@ public class ShowGraph extends PApplet implements MouseWheelListener {
 
     private void drawVertex(Vertex v, double r) {
         noStroke();
-        ellipse(toScreenX(v.getX()), toScreenY(v.getY()), r, r);
+        ellipse(toScreenX((float)v.getX()), toScreenY((float)v.getY()), r, r);
     }
 
     public synchronized void draw() {
@@ -839,12 +840,12 @@ public class ShowGraph extends PApplet implements MouseWheelListener {
         updatePixels();
     }
 
-    private double toScreenY(double y) {
-        return map(y, modelBounds.getMinY(), modelBounds.getMaxY(), getSize().height, 0);
+    private float toScreenY(float y) {
+        return map(y, (float)modelBounds.getMinY(), (float)modelBounds.getMaxY(), getSize().height, 0);
     }
 
-    private double toScreenX(double x) {
-        return map(x, modelBounds.getMinX(), modelBounds.getMaxX(), 0, getSize().width);
+    private float toScreenX(float x) {
+        return map(x, (float)modelBounds.getMinX(), (float)modelBounds.getMaxX(), 0, getSize().width);
     }
 
     public void keyPressed() {
@@ -861,8 +862,8 @@ public class ShowGraph extends PApplet implements MouseWheelListener {
     public void mouseClicked() {
         Envelope screenEnv = new Envelope(new Coordinate(mouseX, mouseY));
         screenEnv.expandBy(4, 4);
-        Envelope env = new Envelope(toModelX(screenEnv.getMinX()), toModelX(screenEnv.getMaxX()),
-                toModelY(screenEnv.getMinY()), toModelY(screenEnv.getMaxY()));
+        Envelope env = new Envelope(toModelX((float)screenEnv.getMinX()), toModelX((float)screenEnv.getMaxX()),
+                toModelY((float)screenEnv.getMinY()), toModelY((float)screenEnv.getMaxY()));
 
         List<Vertex> nearby = (List<Vertex>) vertexIndex.query(env);
         selector.verticesSelected(nearby);
@@ -894,12 +895,12 @@ public class ShowGraph extends PApplet implements MouseWheelListener {
         drawLevel = DRAW_PARTIAL;
     }
 
-    private double toModelY(double y) {
-        return map(y, 0, getSize().height, modelBounds.getMaxY(), modelBounds.getMinY());
+    private double toModelY(float y) {
+        return map(y, 0, getSize().height, (float)modelBounds.getMaxY(), (float)modelBounds.getMinY());
     }
 
-    private double toModelX(double x) {
-        return map(x, 0, getSize().width, modelBounds.getMinX(), modelBounds.getMaxX());
+    private double toModelX(float x) {
+        return map(x, 0, getSize().width, (float)modelBounds.getMinX(), (float)modelBounds.getMaxX());
     }
 
     /**
