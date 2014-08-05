@@ -391,6 +391,7 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
         addWindowListener(new ExitListener());
         pack();
         
+        // manually shut off the graphical pane whenever we switch tabs
         tabbedPane.addChangeListener(new ChangeListener(){
 			@Override
 			public void stateChanged(ChangeEvent e) {
