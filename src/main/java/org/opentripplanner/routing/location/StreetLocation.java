@@ -140,11 +140,6 @@ public class StreetLocation extends StreetVertex {
             // creates links from street head -> location -> street tail.
             createHalfLocation(graph, location, label + " to " + tov.getLabel(), name,
                     nearestPoint, street);
-            
-            double distanceToNearestTransitStop = Math.min(
-                    tov.getDistanceToNearestTransitStop(),
-                    fromv.getDistanceToNearestTransitStop());
-            edgeLocation.setDistanceToNearestTransitStop(distanceToNearestTransitStop);
         }
         location.setWheelchairAccessible(wheelchairAccessible);
         return location;
@@ -180,11 +175,6 @@ public class StreetLocation extends StreetVertex {
                 // creates links from street head -> location -> street tail.
                 createHalfLocation(graph, location, label + " to " + tov.getLabel(), name,
                         nearestPoint, street);
-                
-                double distanceToNearestTransitStop = Math.min(
-                        tov.getDistanceToNearestTransitStop(),
-                        fromv.getDistanceToNearestTransitStop());
-                edgeLocation.setDistanceToNearestTransitStop(distanceToNearestTransitStop);
             }
         }
         location.setWheelchairAccessible(wheelchairAccessible);
