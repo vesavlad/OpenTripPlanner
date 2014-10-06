@@ -48,7 +48,6 @@ import org.opentripplanner.routing.edgetype.FreeEdge;
 import org.opentripplanner.routing.edgetype.OnboardEdge;
 import org.opentripplanner.routing.edgetype.PatternEdge;
 import org.opentripplanner.routing.edgetype.PatternInterlineDwell;
-import org.opentripplanner.routing.edgetype.StreetEdge;
 import org.opentripplanner.routing.edgetype.TripPattern;
 import org.opentripplanner.routing.error.PathNotFoundException;
 import org.opentripplanner.routing.error.TrivialPathException;
@@ -171,8 +170,8 @@ public class PlanGenerator {
         if (endName == null) {
             endName = tripEndVertex.getLabel();
         }
-        Place from = new Place(tripStartVertex.getX(), tripStartVertex.getY(), startName);
-        Place to = new Place(tripEndVertex.getX(), tripEndVertex.getY(), endName);
+        Place from = new Place(tripStartVertex.getLon(), tripStartVertex.getLat(), startName);
+        Place to = new Place(tripEndVertex.getLon(), tripEndVertex.getLat(), endName);
 
         from.orig = request.from.name;
         to.orig = request.to.name;
@@ -713,7 +712,7 @@ public class PlanGenerator {
     private Place makePlace(State state, Vertex vertex, Edge edge, Stop stop, TripTimes tripTimes) {
         // If no edge was given, it means we're at the end of this leg and need to work around that.
         boolean endOfLeg = (edge == null);
-        Place place = new Place(vertex.getX(), vertex.getY(), vertex.getName(),
+        Place place = new Place(vertex.getLon(), vertex.getLat(), vertex.getName(),
                 makeCalendar(state), makeCalendar(state));
 
         if (endOfLeg) edge = state.getBackEdge();
@@ -1052,8 +1051,8 @@ public class PlanGenerator {
         WalkStep step;
         step = new WalkStep();
         step.streetName = en.getName();
-        step.lon = en.getFromVertex().getX();
-        step.lat = en.getFromVertex().getY();
+        step.lon = en.getFromVertex().getLon();
+        step.lat = en.getFromVertex().getLat();
         step.elevation = encodeElevationProfile(s.getBackEdge(), 0);
         step.bogusName = en.hasBogusName();
         step.addAlerts(graph.streetNotesService.getNotes(s));

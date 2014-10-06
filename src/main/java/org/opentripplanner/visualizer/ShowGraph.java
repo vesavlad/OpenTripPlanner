@@ -25,7 +25,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
@@ -605,8 +604,8 @@ public class ShowGraph extends PApplet implements MouseWheelListener {
         drawVertex(v, 8);
         str += " " + shortDateFormat.format(new Date(s.getTimeSeconds() * 1000));
         str += " [" + (int) s.getWeight() + "]";
-        double x = toScreenX(v.getX()) + 10;
-        double y = toScreenY(v.getY());
+        double x = toScreenX(v.getLon()) + 10;
+        double y = toScreenY(v.getLat());
         double dy = y - lastLabelY;
         if (dy == 0) {
             y = lastLabelY + 20;
@@ -619,7 +618,7 @@ public class ShowGraph extends PApplet implements MouseWheelListener {
 
     private void drawVertex(Vertex v, double r) {
         noStroke();
-        ellipse(toScreenX(v.getX()), toScreenY(v.getY()), r, r);
+        ellipse(toScreenX(v.getLon()), toScreenY(v.getLat()), r, r);
     }
 
     public synchronized void draw() {

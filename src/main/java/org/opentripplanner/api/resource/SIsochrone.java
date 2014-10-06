@@ -260,7 +260,7 @@ public class SIsochrone extends RoutingResource {
         LineString pathToStreet = gf.createLineString(pathToStreetCoords);
 
         // get distance between origin and drop point for time correction
-        double distanceToRoad = this.distanceLibrary.distance(origin.getY(), origin.getX(),
+        double distanceToRoad = this.distanceLibrary.distance(origin.getLat(), origin.getLon(),
                 dropPoint.y, dropPoint.x);
         long offRoadTimeCorrection = (long) (distanceToRoad / this.offRoadWalkspeed);
 

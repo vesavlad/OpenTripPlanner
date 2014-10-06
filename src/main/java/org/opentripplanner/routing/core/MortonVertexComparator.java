@@ -44,11 +44,11 @@ public class MortonVertexComparator implements Comparator<Vertex> {
         // Recenter the projection near the area of interest.
         // Comparator handles negative numbers poorly, so must scan for minimum 
         // longitude.
-        setRefLat(domain.get(0).getY());
+        setRefLat(domain.get(0).getLat());
         minLon = Double.POSITIVE_INFINITY;
         for (Vertex v : domain)
-            if (v.getX() < minLon)
-                minLon = v.getX();
+            if (v.getLon() < minLon)
+                minLon = v.getLon();
     }
     
     /* Specify the reference latitude for the projection.
@@ -64,10 +64,10 @@ public class MortonVertexComparator implements Comparator<Vertex> {
     @Override
     public int compare(Vertex v0, Vertex v1) {
         
-        double lon0 = v0.getX() - minLon;
-        double lat0 = v0.getY();
-        double lon1 = v1.getX() - minLon;
-        double lat1 = v1.getY();
+        double lon0 = v0.getLon() - minLon;
+        double lat0 = v0.getLat();
+        double lon1 = v1.getLon() - minLon;
+        double lat1 = v1.getLat();
         
         long x0 = (long) Math.abs(lon0 * meters_per_degree_lon);
         long y0 = (long) Math.abs(lat0 * METERS_PER_DEGREE_LAT);

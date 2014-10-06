@@ -158,8 +158,8 @@ public class OnBoardDepartServiceImplTest {
         assertEquals("The right", edge.getDirection());
         assertEquals(geometry, edge.getGeometry());
 
-        assertEquals(coordinates[0].x, vertex.getX(), 0.0);
-        assertEquals(coordinates[0].y, vertex.getY(), 0.0);
+        assertEquals(coordinates[0].x, vertex.getLon(), 0.000001);
+        assertEquals(coordinates[0].y, vertex.getLat(), 0.000001);
     }
 
     @Test
@@ -177,10 +177,10 @@ public class OnBoardDepartServiceImplTest {
         ServiceDay serviceDay = mock(ServiceDay.class);
 
         when(graph.getTimeZone()).thenReturn(TimeZone.getTimeZone("GMT"));
-        when(station0.getX()).thenReturn(coordinates[0].x);
-        when(station0.getY()).thenReturn(coordinates[0].y);
-        when(station1.getX()).thenReturn(coordinates[1].x);
-        when(station1.getY()).thenReturn(coordinates[1].y);
+        when(station0.getLon()).thenReturn(coordinates[0].x);
+        when(station0.getLat()).thenReturn(coordinates[0].y);
+        when(station1.getLon()).thenReturn(coordinates[1].x);
+        when(station1.getLat()).thenReturn(coordinates[1].y);
 
         RoutingContext routingContext = new RoutingContext(routingRequest, graph, null, arrive);
         AgencyAndId agencyAndId = new AgencyAndId("Agency", "ID");
@@ -227,8 +227,8 @@ public class OnBoardDepartServiceImplTest {
 
         Vertex vertex = onBoardDepartServiceImpl.setupDepartOnBoard(routingContext);
 
-        assertEquals(coordinates[1].x, vertex.getX(), 0.0);
-        assertEquals(coordinates[1].y, vertex.getY(), 0.0);
+        assertEquals(coordinates[1].x, vertex.getLon(), 0.0);
+        assertEquals(coordinates[1].y, vertex.getLat(), 0.0);
     }
 
     @Test

@@ -152,8 +152,8 @@ public class TestHalfEdges extends TestCase {
                 filter(endTurns, StreetEdge.class),
                 new LinearLocation(0, 0.8).getCoordinate(right.getGeometry()));
 
-        assertTrue(start.getX() < end.getX());
-        assertTrue(start.getY() < end.getY());
+        assertTrue(start.getLon() < end.getLon());
+        assertTrue(start.getLat() < end.getLat());
 
         List<Edge> extra = end.getExtra();
 
@@ -276,8 +276,8 @@ public class TestHalfEdges extends TestCase {
                 filter(turns, StreetEdge.class),
                 new LinearLocation(0, 0.8).getCoordinate(left.getGeometry()));
 
-        assertEquals(start.getX(), end.getX());
-        assertTrue(start.getY() < end.getY());
+        assertEquals(start.getLon(), end.getLon());
+        assertTrue(start.getLat() < end.getLat());
 
         List<Edge> extra = end.getExtra();
 
@@ -309,8 +309,8 @@ public class TestHalfEdges extends TestCase {
                 filter(turns, StreetEdge.class),
                 new LinearLocation(0, 0.4).getCoordinate(left.getGeometry()));
 
-        assertEquals(start.getX(), end.getX());
-        assertTrue(start.getY() > end.getY());
+        assertEquals(start.getLon(), end.getLon());
+        assertTrue(start.getLat() > end.getLat());
 
         List<Edge> extra = end.getExtra();
         assertEquals(2, extra.size());
@@ -466,14 +466,14 @@ public class TestHalfEdges extends TestCase {
         Edge edge = outgoing.iterator().next();
 
         Vertex midpoint = edge.getToVertex();
-        assertTrue(Math.abs(midpoint.getCoordinate().y - 40.01) < 0.00000001);
+        assertTrue(Math.abs(midpoint.getCoordinate().y - 40.01) < 0.000001);
 
         outgoing = station2.getOutgoing();
         assertTrue(outgoing.size() == 2);
         edge = outgoing.iterator().next();
 
         Vertex station2point = edge.getToVertex();
-        assertTrue(Math.abs(station2point.getCoordinate().x - -74.002) < 0.00000001);
+        assertTrue(Math.abs(station2point.getCoordinate().x - -74.002) < 0.000001);
 
     }
 }

@@ -132,47 +132,47 @@ public class StreetfulStopLinkerTest {
             if (edge instanceof SimpleTransfer) {
                 assertEquals(transitStopA, edge.getFromVertex());
                 assertNotSame(transitStopA, edge.getToVertex());
-                double EPSILON_D = 0.1;
+                double EPSILON_DEGREES = 0.000001;
                 if (edge.getToVertex().equals(transitStopB)) {
                     LineString lineString = edge.getGeometry();
                     assertEquals(2, lineString.getNumPoints());
-                    assertEquals(1.0, lineString.getPointN(0).getX(), 0.0);
-                    assertEquals(1.0, lineString.getPointN(0).getY(), 0.0);
-                    assertEquals(1.0, lineString.getPointN(1).getX(), 0.0);
-                    assertEquals(2.0, lineString.getPointN(1).getY(), 0.0);
+                    assertEquals(1.0, lineString.getPointN(0).getX(), EPSILON_DEGREES);
+                    assertEquals(1.0, lineString.getPointN(0).getY(), EPSILON_DEGREES);
+                    assertEquals(1.0, lineString.getPointN(1).getX(), EPSILON_DEGREES);
+                    assertEquals(2.0, lineString.getPointN(1).getY(), EPSILON_DEGREES);
                     results[0] = edge.getDistance();
                 }
                 if (edge.getToVertex().equals(transitStopC)) {
                     LineString lineString = edge.getGeometry();
                     assertEquals(3, lineString.getNumPoints());
-                    assertEquals(1.0, lineString.getPointN(0).getX(), 0.0);
-                    assertEquals(1.0, lineString.getPointN(0).getY(), 0.0);
-                    assertEquals(1.0, lineString.getPointN(1).getX(), 0.0);
-                    assertEquals(2.0, lineString.getPointN(1).getY(), 0.0);
-                    assertEquals(2.0, lineString.getPointN(2).getX(), 0.0);
-                    assertEquals(2.0, lineString.getPointN(2).getY(), 0.0);
+                    assertEquals(1.0, lineString.getPointN(0).getX(), EPSILON_DEGREES);
+                    assertEquals(1.0, lineString.getPointN(0).getY(), EPSILON_DEGREES);
+                    assertEquals(1.0, lineString.getPointN(1).getX(), EPSILON_DEGREES);
+                    assertEquals(2.0, lineString.getPointN(1).getY(), EPSILON_DEGREES);
+                    assertEquals(2.0, lineString.getPointN(2).getX(), EPSILON_DEGREES);
+                    assertEquals(2.0, lineString.getPointN(2).getY(), EPSILON_DEGREES);
                     results[1] = edge.getDistance();
                 }
                 if (edge.getToVertex().equals(transitStopD)) {
                     LineString lineString = edge.getGeometry();
                     assertEquals(4, lineString.getNumPoints());
-                    assertEquals(1.0, lineString.getPointN(0).getX(), 0.0);
-                    assertEquals(1.0, lineString.getPointN(0).getY(), 0.0);
-                    assertEquals(1.0, lineString.getPointN(1).getX(), 0.0);
-                    assertEquals(2.0, lineString.getPointN(1).getY(), 0.0);
-                    assertEquals(2.0, lineString.getPointN(2).getX(), 0.0);
-                    assertEquals(2.0, lineString.getPointN(2).getY(), 0.0);
-                    assertEquals(2.0, lineString.getPointN(3).getX(), 0.0);
-                    assertEquals(1.0, lineString.getPointN(3).getY(), 0.0);
+                    assertEquals(1.0, lineString.getPointN(0).getX(), EPSILON_DEGREES);
+                    assertEquals(1.0, lineString.getPointN(0).getY(), EPSILON_DEGREES);
+                    assertEquals(1.0, lineString.getPointN(1).getX(), EPSILON_DEGREES);
+                    assertEquals(2.0, lineString.getPointN(1).getY(), EPSILON_DEGREES);
+                    assertEquals(2.0, lineString.getPointN(2).getX(), EPSILON_DEGREES);
+                    assertEquals(2.0, lineString.getPointN(2).getY(), EPSILON_DEGREES);
+                    assertEquals(2.0, lineString.getPointN(3).getX(), EPSILON_DEGREES);
+                    assertEquals(1.0, lineString.getPointN(3).getY(), EPSILON_DEGREES);
                     results[2] = edge.getDistance();
                 }
                 if (edge.getToVertex().equals(transitStopE)) {
                     LineString lineString = edge.getGeometry();
                     assertEquals(2, lineString.getNumPoints());
-                    assertEquals(1.0, lineString.getPointN(0).getX(), 0.0);
-                    assertEquals(1.0, lineString.getPointN(0).getY(), 0.0);
-                    assertEquals(1.0, lineString.getPointN(1).getX(), 0.0);
-                    assertEquals(1.0, lineString.getPointN(1).getY(), 0.0);
+                    assertEquals(1.0, lineString.getPointN(0).getX(), EPSILON_DEGREES);
+                    assertEquals(1.0, lineString.getPointN(0).getY(), EPSILON_DEGREES);
+                    assertEquals(1.0, lineString.getPointN(1).getX(), EPSILON_DEGREES);
+                    assertEquals(1.0, lineString.getPointN(1).getY(), EPSILON_DEGREES);
                     results[3] = edge.getDistance();
                 }
             }

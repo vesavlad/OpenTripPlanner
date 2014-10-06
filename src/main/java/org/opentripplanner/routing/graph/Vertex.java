@@ -18,7 +18,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -49,9 +48,9 @@ public abstract class Vertex implements Serializable, Cloneable {
     /* Longer human-readable name for the client */
     private String name;
 
-    private final double x;
+    private final int x_fixed32;
 
-    private final double y;
+    private final int y_fixed32;
     
     private transient Edge[] incoming = new Edge[0];
 
@@ -60,11 +59,11 @@ public abstract class Vertex implements Serializable, Cloneable {
     
     /* PUBLIC CONSTRUCTORS */
 
-    public Vertex(Graph g, String label, double x, double y) {
+    public Vertex(Graph g, String label, double lon, double lat) {
         this.label = label;
-        this.x = x;
-        this.y = y;
-        this.index = maxIndex  ++;
+        y_fixed32 = (int)(lat * Integer.MAX_VALUE / 90);
+        x_fixed32 = (int)(lon * Integer.MAX_VALUE / 180);
+        this.index = maxIndex++;
         // null graph means temporary vertex
         if (g != null)
             g.addVertex(this);
@@ -194,23 +193,13 @@ public abstract class Vertex implements Serializable, Cloneable {
     }
     
     /** Get the longitude of the vertex */
-    public double getX() {
-        return x;
-    }
-
-    /** Get the latitude of the vertex */
-    public double getY() {
-        return y;
-    }
-
-    /** Get the longitude of the vertex */
     public double getLon() {
-        return x;
+        return x_fixed32 * 180.0 / Integer.MAX_VALUE;
     }
 
     /** Get the latitude of the vertex */
     public double getLat() {
-        return y;
+        return y_fixed32 * 90.0 / Integer.MAX_VALUE;
     }
 
     /** If this vertex is located on only one street, get that street's name. */
@@ -232,7 +221,7 @@ public abstract class Vertex implements Serializable, Cloneable {
 
     @XmlTransient
     public Coordinate getCoordinate() {
-        return new Coordinate(getX(), getY());
+        return new Coordinate(getLon(), getLat());
     }
 
     /** Get the bearing, in degrees, between this vertex and another coordinate. */

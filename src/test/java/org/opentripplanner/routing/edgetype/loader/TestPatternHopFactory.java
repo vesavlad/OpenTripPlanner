@@ -78,11 +78,11 @@ public class TestPatternHopFactory extends TestCase {
         for (int i = 0; i < stops.length; ++i) {
             TransitStop stop = (TransitStop) (graph.getVertex(stops[i]));
             
-            IntersectionVertex front = new IntersectionVertex(graph, "near_1_" + stop.getStopId(), stop.getX() + 0.0001, stop.getY() + 0.0001);
-            IntersectionVertex back =  new IntersectionVertex(graph, "near_2_" + stop.getStopId(), stop.getX() - 0.0001, stop.getY() - 0.0001);
+            IntersectionVertex front = new IntersectionVertex(graph, "near_1_" + stop.getStopId(), stop.getLon() + 0.0001, stop.getLat() + 0.0001);
+            IntersectionVertex back =  new IntersectionVertex(graph, "near_2_" + stop.getStopId(), stop.getLon() - 0.0001, stop.getLat() - 0.0001);
             
-            StreetEdge street1 = new StreetEdge(front, back, GeometryUtils.makeLineString(stop.getX() + 0.0001, stop.getY() + 0.0001, stop.getX() - 0.0001, stop.getY() - 0.0001), "street", 100, StreetTraversalPermission.ALL, false);
-            StreetEdge street2 = new StreetEdge(back, front, GeometryUtils.makeLineString(stop.getX() - 0.0001, stop.getY() - 0.0001, stop.getX() + 0.0001, stop.getY() + 0.0001), "street", 100, StreetTraversalPermission.ALL, true);
+            StreetEdge street1 = new StreetEdge(front, back, GeometryUtils.makeLineString(stop.getLon() + 0.0001, stop.getLat() + 0.0001, stop.getLon() - 0.0001, stop.getLat() - 0.0001), "street", 100, StreetTraversalPermission.ALL, false);
+            StreetEdge street2 = new StreetEdge(back, front, GeometryUtils.makeLineString(stop.getLon() - 0.0001, stop.getLat() - 0.0001, stop.getLon() + 0.0001, stop.getLat() + 0.0001), "street", 100, StreetTraversalPermission.ALL, true);
         }
 
         NetworkLinker nl = new NetworkLinker(graph);

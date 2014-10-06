@@ -1758,15 +1758,15 @@ public class OpenStreetMapGraphBuilderImpl implements GraphBuilder {
                     String levelName = level.longName;
 
                     ElevatorOffboardVertex offboardVertex = new ElevatorOffboardVertex(graph,
-                            sourceVertexLabel + "_offboard", sourceVertex.getX(),
-                            sourceVertex.getY(), levelName);
+                            sourceVertexLabel + "_offboard", sourceVertex.getLon(),
+                            sourceVertex.getLat(), levelName);
 
                     new FreeEdge(sourceVertex, offboardVertex);
                     new FreeEdge(offboardVertex, sourceVertex);
 
                     ElevatorOnboardVertex onboardVertex = new ElevatorOnboardVertex(graph,
-                            sourceVertexLabel + "_onboard", sourceVertex.getX(),
-                            sourceVertex.getY(), levelName);
+                            sourceVertexLabel + "_onboard", sourceVertex.getLon(),
+                            sourceVertex.getLat(), levelName);
 
                     new ElevatorBoardEdge(offboardVertex, onboardVertex);
                     new ElevatorAlightEdge(onboardVertex, offboardVertex, level.longName);

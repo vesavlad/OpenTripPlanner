@@ -79,8 +79,8 @@ public class OnBoardDepartPatternHop extends Edge implements OnboardEdge {
          * Do not multiply by positionInHop, as it is already taken into account by the from vertex
          * location.
          */
-        return SphericalDistanceLibrary.getInstance().distance(getFromVertex().getY(),
-                getFromVertex().getX(), endStop.getLat(), endStop.getLon());
+        return SphericalDistanceLibrary.getInstance().distance(getFromVertex().getLat(),
+                getFromVertex().getLon(), endStop.getLat(), endStop.getLon());
     }
 
     public TraverseMode getMode() {
@@ -134,7 +134,7 @@ public class OnBoardDepartPatternHop extends Edge implements OnboardEdge {
 
     public LineString getGeometry() {
         if (geometry == null) {
-            Coordinate c1 = new Coordinate(getFromVertex().getX(), getFromVertex().getY());
+            Coordinate c1 = new Coordinate(getFromVertex().getLon(), getFromVertex().getLat());
             Coordinate c2 = new Coordinate(endStop.getLon(), endStop.getLat());
             geometry = GeometryUtils.getGeometryFactory().createLineString(
                     new Coordinate[] { c1, c2 });

@@ -151,7 +151,7 @@ public class InterleavedBidirectionalHeuristic implements RemainingWeightHeurist
             // The weight of the queue head is uniformly increasing. This is the highest ever seen.
             maxFound = uw;
             
-//            System.out.printf("H, %3.5f, %3.5f, %2.1f\n", u.getY(), u.getX(), 
+//            System.out.printf("H, %3.5f, %3.5f, %2.1f\n", u.getLat(), u.getLon(),
 //                    Double.isInfinite(uw) ? -1.0 : uw);
 
             // OUTgoing for heuristic search when main search is arriveBy 
@@ -198,7 +198,7 @@ public class InterleavedBidirectionalHeuristic implements RemainingWeightHeurist
         // TODO: verify that StreetVertex includes all vertices of interest.
         if (v instanceof StreetVertex) return weight == null ? Double.POSITIVE_INFINITY : weight;
         else if (weight == null) {
-            double dist = distanceLibrary.fastDistance(v.getY(), v.getX(), target.getY(), target.getX());
+            double dist = distanceLibrary.fastDistance(v.getLat(), v.getLon(), target.getLat(), target.getLon());
             double time = dist / MAX_TRANSIT_SPEED;
             return Math.max(maxFound, time);
         }

@@ -13,29 +13,18 @@
 
 package org.opentripplanner.routing.algorithm.strategies;
 
-import com.fasterxml.jackson.jaxrs.json.annotation.JSONP;
-import com.google.common.collect.Maps;
 import org.opentripplanner.common.geometry.DistanceLibrary;
 import org.opentripplanner.common.geometry.SphericalDistanceLibrary;
-import org.opentripplanner.profile.StopAtDistance;
-import org.opentripplanner.profile.StopCluster;
-import org.opentripplanner.routing.algorithm.GenericAStar;
 import org.opentripplanner.routing.algorithm.GenericDijkstra;
 import org.opentripplanner.routing.algorithm.TraverseVisitor;
-import org.opentripplanner.routing.core.OptimizeType;
 import org.opentripplanner.routing.core.State;
-import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.graph.Edge;
-import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.spt.ShortestPathTree;
-import org.opentripplanner.routing.vertextype.IntersectionVertex;
 import org.opentripplanner.routing.vertextype.TransitStop;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Map;
 
 /**
  * A Euclidean remaining weight strategy that takes into account transit boarding costs where applicable.
@@ -61,8 +50,8 @@ public class DefaultRemainingWeightHeuristic implements RemainingWeightHeuristic
         this.transit = req.modes.isTransit();
         maxStreetSpeed = req.getStreetSpeedUpperBound();
         maxTransitSpeed = req.getTransitSpeedUpperBound();
-        targetX = target.getX();
-        targetY = target.getY();
+        targetX = target.getLon();
+        targetY = target.getLat();
         requiredWalkDistance = determineRequiredWalkDistance(req);
         walkReluctance = req.walkReluctance;
     }
@@ -82,7 +71,7 @@ public class DefaultRemainingWeightHeuristic implements RemainingWeightHeuristic
     @Override
     public double computeForwardWeight(State s, Vertex target) {
         Vertex sv = s.getVertex();
-        double euclideanDistance = distanceLibrary.fastDistance(sv.getY(), sv.getX(), targetY, targetX);
+        double euclideanDistance = distanceLibrary.fastDistance(sv.getLat(), sv.getLon(), targetY, targetX);
         if (transit) {
             if (euclideanDistance < requiredWalkDistance) {
                 return walkReluctance * euclideanDistance / maxStreetSpeed;
