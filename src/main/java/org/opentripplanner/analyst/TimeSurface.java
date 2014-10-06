@@ -3,6 +3,8 @@ package org.opentripplanner.analyst;
 import com.google.common.collect.Lists;
 import com.vividsolutions.jts.geom.Coordinate;
 
+import gnu.trove.map.TObjectIntMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
 import org.apache.commons.math3.util.FastMath;
 import org.opentripplanner.analyst.core.IsochroneData;
 import org.opentripplanner.analyst.request.SampleGridRenderer;
@@ -44,7 +46,7 @@ public class TimeSurface implements Serializable {
     public final String routerId;
     
     public final int id;
-    public final int[] times; // one time in seconds per vertex
+    public final TObjectIntMap<Vertex> times; // one time in seconds per vertex
     public final double lat, lon;
     public int cutoffMinutes;
     public long dateTime;
@@ -53,7 +55,7 @@ public class TimeSurface implements Serializable {
     public SparseMatrixZSampleGrid<WTWD> sampleGrid; // another representation on a regular grid with a triangulation
 
     public TimeSurface(ShortestPathTree spt) {
-    	
+
     	params = spt.getOptions().parameters;
     	
         String routerId = spt.getOptions().routerId;
@@ -64,15 +66,14 @@ public class TimeSurface implements Serializable {
         // We don't want to keep that default in sync across two modules.
     	this.routerId = routerId;
         long t0 = System.currentTimeMillis();
-        times = new int[Vertex.getMaxIndex()]; // memory leak due to temp vertices?
-        Arrays.fill(times, UNREACHABLE);
+        times = new TObjectIntHashMap<Vertex>(1000000, 0.5f, UNREACHABLE);
         for (State state : spt.getAllStates()) {
             Vertex vertex = state.getVertex();
             if (vertex instanceof StreetVertex || vertex instanceof TransitStop) {
-                int i = vertex.getIndex();
                 int t = (int) state.getActiveTime();
-                if (times[i] == UNREACHABLE || times[i] > t) {
-                    times[i] = t;
+                int existing = times.get(vertex);
+                if (existing == UNREACHABLE || existing > t) {
+                    times.put(vertex, t);
                 }
             }
         }
@@ -101,7 +102,7 @@ public class TimeSurface implements Serializable {
     }
 
     public int getTime(Vertex v) {
-        return times[v.getIndex()];
+        return times.get(v);
     }
 
     private synchronized int makeUniqueId() {

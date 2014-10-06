@@ -38,10 +38,6 @@ public abstract class Vertex implements Serializable, Cloneable {
 
     private static final Logger LOG = LoggerFactory.getLogger(Vertex.class);
 
-    private static int maxIndex = 0;
-
-    private int index;
-    
     /* short debugging name */
     private final String label;
     
@@ -63,7 +59,6 @@ public abstract class Vertex implements Serializable, Cloneable {
         this.label = label;
         y_fixed32 = (int)(lat * Integer.MAX_VALUE / 90);
         x_fixed32 = (int)(lon * Integer.MAX_VALUE / 180);
-        this.index = maxIndex++;
         // null graph means temporary vertex
         if (g != null)
             g.addVertex(this);
@@ -86,10 +81,6 @@ public abstract class Vertex implements Serializable, Cloneable {
         }
         sb.append(">");
         return sb.toString();
-    }
-
-    public int hashCode() {
-        return index;
     }
 
     /* EDGE UTILITY METHODS (use arrays to eliminate copy-on-write set objects) */
@@ -234,21 +225,6 @@ public abstract class Vertex implements Serializable, Cloneable {
         return azimuthTo(other.getCoordinate());
     }
 
-    /** Get this vertex's unique index, that can serve as a hashcode or an index into a table */
-    @XmlTransient
-    public int getIndex() {
-        return index;
-    }
-
-    public void setIndex(int index) {
-        this.index = index;
-    }
-
-    public static int getMaxIndex() {
-        return maxIndex;
-    }
-
-
     /* SERIALIZATION METHODS */
 
     private void writeObject(ObjectOutputStream out) throws IOException {
@@ -260,7 +236,6 @@ public abstract class Vertex implements Serializable, Cloneable {
         in.defaultReadObject();
         this.incoming = new Edge[0];
         this.outgoing = new Edge[0];
-        index = maxIndex++;
     }
 
     /* UTILITY METHODS FOR SEARCHING, GRAPH BUILDING, AND GENERATING WALKSTEPS */

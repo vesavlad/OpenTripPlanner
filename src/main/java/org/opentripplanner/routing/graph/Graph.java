@@ -111,9 +111,6 @@ public class Graph implements Serializable {
 
     private boolean debugData = true;
 
-    // TODO this would be more efficient if it was just an array.
-    private transient Map<Integer, Vertex> vertexById;
-
     private transient Map<Integer, Edge> edgeById;
 
     public transient StreetVertexIndexService streetIndex;
@@ -177,7 +174,6 @@ public class Graph implements Serializable {
         this.vertices = new ConcurrentHashMap<String, Vertex>();
         this.temporaryEdges = Collections.newSetFromMap(new ConcurrentHashMap<Edge, Boolean>());
         this.edgeById = new ConcurrentHashMap<Integer, Edge>();
-        this.vertexById = new ConcurrentHashMap<Integer, Vertex>();
     }
     
     /**
@@ -214,19 +210,6 @@ public class Graph implements Serializable {
         return vertices.get(label);
     }
     
-    /**
-     * Returns the vertex with the given ID or null if none is present.
-     * 
-     * NOTE: you may need to run rebuildVertexAndEdgeIndices() for the indices
-     * to be accurate.
-     * 
-     * @param id
-     * @return
-     */
-    public Vertex getVertexById(int id) {
-        return this.vertexById.get(id);
-    }
-
     /**
      * Get all the vertices in the graph.
      * @return
@@ -472,12 +455,7 @@ public class Graph implements Serializable {
      * before the Vertex has any edges, so updating indices on addVertex is insufficient.
      */
     public void rebuildVertexAndEdgeIndices() {
-        this.vertexById = new HashMap<Integer, Vertex>(Vertex.getMaxIndex());
         Collection<Vertex> vertices = getVertices();
-        for (Vertex v : vertices) {
-            vertexById.put(v.getIndex(), v);
-        }
-
         // Create map from edge ids to edges.
         this.edgeById = new HashMap<Integer, Edge>();
         for (Vertex v : vertices) {
@@ -696,7 +674,6 @@ public class Graph implements Serializable {
             // should we make debug info generation conditional?
             LOG.debug("Writing debug data...");
             out.writeObject(this.graphBuilderAnnotations);
-            out.writeObject(this.vertexById);
             out.writeObject(this.edgeById);
         } else {
             LOG.debug("Skipping debug data.");

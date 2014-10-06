@@ -138,18 +138,11 @@ public class TestGraph extends TestCase {
             assertNull(g.getEdgeById(e.getId()));
         }
 
-        for (Vertex v : g.getVertices()) {
-            assertNull(g.getVertexById(v.getIndex()));
-        }
-
         g.rebuildVertexAndEdgeIndices();
         for (Edge e : allEdges) {
             assertEquals(e, g.getEdgeById(e.getId()));
         }
 
-        for (Vertex v : g.getVertices()) {
-            assertEquals(v, g.getVertexById(v.getIndex()));
-        }
     }
 
     /**

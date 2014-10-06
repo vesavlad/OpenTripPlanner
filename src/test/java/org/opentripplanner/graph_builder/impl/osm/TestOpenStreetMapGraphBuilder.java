@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.beust.jcommander.internal.Sets;
 import junit.framework.TestCase;
 
 import org.junit.Before;
@@ -138,10 +139,9 @@ public class TestOpenStreetMapGraphBuilder extends TestCase {
         assertFalse(iv7.trafficLight);
         assertFalse(iv8.trafficLight);
         
-        Set<P2<Integer>> edgeEndpoints = new HashSet<P2<Integer>>();
+        Set<P2<Vertex>> edgeEndpoints = Sets.newHashSet();
         for (StreetEdge se : gg.getStreetEdges()) {
-            P2<Integer> endpoints = new P2<Integer>(se.getFromVertex().getIndex(),
-                    se.getToVertex().getIndex());
+            P2<Vertex> endpoints = new P2<Vertex>(se.getFromVertex(), se.getToVertex());
             
             // Check that we don't get any duplicate edges on this small graph.
             if (edgeEndpoints.contains(endpoints)) {

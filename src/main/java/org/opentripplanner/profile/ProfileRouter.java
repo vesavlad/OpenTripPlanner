@@ -1,6 +1,8 @@
 package org.opentripplanner.profile;
 
 import com.google.common.collect.*;
+import gnu.trove.map.TObjectIntMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
 import org.onebusaway.gtfs.model.Stop;
 import org.opentripplanner.analyst.TimeSurface;
 import org.opentripplanner.api.resource.SimpleIsochrone;
@@ -53,7 +55,7 @@ public class ProfileRouter {
     List<RoutingContext> routingContexts = Lists.newArrayList();
 
     /* Analyst: time bounds for each vertex */
-    public int[] mins, maxs;
+    public TObjectIntMap<Vertex> mins, maxs;
     public TimeSurface minSurface, maxSurface;
 
     // while finding direct paths:
@@ -84,10 +86,8 @@ public class ProfileRouter {
         }
         // Analyst
         if (request.analyst) {
-            mins = new int[Vertex.getMaxIndex()];
-            maxs = new int[Vertex.getMaxIndex()];
-            Arrays.fill(mins, TimeSurface.UNREACHABLE);
-            Arrays.fill(maxs, TimeSurface.UNREACHABLE);
+            mins = new TObjectIntHashMap(1000000, 0.5f, TimeSurface.UNREACHABLE);
+            maxs = new TObjectIntHashMap(1000000, 0.5f, TimeSurface.UNREACHABLE);
         }
         LOG.info("modes: {}", request.modes);
 
@@ -193,13 +193,12 @@ public class ProfileRouter {
                     for (Stop s : r1.to.children) {
                         // TODO This could be done at the end now that we are retaining all rides.
                         TransitStop tstop = graph.index.stopVertexForStop.get(s);
-                        int tsidx = tstop.getIndex();
                         int lb = r1.durationLowerBound();
                         int ub = r1.durationUpperBound();
-                        if (mins[tsidx] == TimeSurface.UNREACHABLE || mins[tsidx] > lb)
-                            mins[tsidx] = lb;
-                        if (maxs[tsidx] == TimeSurface.UNREACHABLE || maxs[tsidx] > ub) // Yes, we want the _minimum_ upper bound.
-                            maxs[tsidx] = ub;
+                        if (mins.get(tstop) == TimeSurface.UNREACHABLE || mins.get(tstop) > lb)
+                            mins.put(tstop, lb);
+                        if (maxs.get(tstop) == TimeSurface.UNREACHABLE || maxs.get(tstop) > ub) // Yes, we want the _minimum_ upper bound.
+                            maxs.put(tstop, ub);
                     }
                 }
                 /* Find transfers out of this new ride. */
@@ -484,11 +483,10 @@ public class ProfileRouter {
         GenericAStar astar = new GenericAStar();
         rr.setNumItineraries(1);
         for (TransitStop tstop : graph.index.stopVertexForStop.values()) {
-            int index = tstop.getIndex();
             // Generate a tree outward from all stops that have been touched in the basic profile search
-            if (mins[index] == TimeSurface.UNREACHABLE || maxs[index] == TimeSurface.UNREACHABLE) continue;
+            if (mins.get(tstop) == TimeSurface.UNREACHABLE || maxs.get(tstop) == TimeSurface.UNREACHABLE) continue;
             rr.setRoutingContext(graph, tstop, null); // Set origin vertex directly instead of generating link edges
-            astar.setTraverseVisitor(new ExtremaPropagationTraverseVisitor(mins[index], maxs[index]));
+            astar.setTraverseVisitor(new ExtremaPropagationTraverseVisitor(mins.get(tstop), maxs.get(tstop)));
             ShortestPathTree spt = astar.getShortestPathTree(rr, 5);
             rr.rctx.destroy();
         }
@@ -512,12 +510,10 @@ public class ProfileRouter {
             int min = min0 + (int) state.getElapsedTimeSeconds();
             int max = max0 + (int) state.getElapsedTimeSeconds();
             Vertex vertex = state.getVertex();
-            int index = vertex.getIndex();
-            if (index >= mins.length) return; // New temp vertices may have been created since the array was dimensioned.
-            if (mins[index] == TimeSurface.UNREACHABLE || mins[index] > min)
-                mins[index] = min;
-            if (maxs[index] == TimeSurface.UNREACHABLE || maxs[index] > max) // Yes we want the minimum upper bound (minimum maximum)
-                maxs[index] = max;
+            if (mins.get(vertex) == TimeSurface.UNREACHABLE || mins.get(vertex) > min)
+                mins.put(vertex, min);
+            if (maxs.get(vertex) == TimeSurface.UNREACHABLE || maxs.get(vertex) > max) // Yes we want the minimum upper bound (minimum maximum)
+                maxs.put(vertex, max);
         }
     }
 
