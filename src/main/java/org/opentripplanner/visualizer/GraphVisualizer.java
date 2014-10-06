@@ -990,7 +990,7 @@ public class GraphVisualizer extends JFrame implements VertexSelectionListener {
                 String edgeIdStr = (String) JOptionPane.showInputDialog(frame, "Edge ID",
                         JOptionPane.PLAIN_MESSAGE);
                 Integer edgeId = Integer.parseInt(edgeIdStr);
-                Edge edge = getGraph().getEdgeById(edgeId);
+                Edge edge = null; //getGraph().getEdgeById(edgeId);
                 if (edge != null) {
                     showGraph.highlightEdge(edge);
                     showGraph.highlightVertex(edge.getFromVertex());

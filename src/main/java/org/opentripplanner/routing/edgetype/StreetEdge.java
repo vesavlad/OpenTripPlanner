@@ -558,7 +558,7 @@ public class StreetEdge extends Edge implements Cloneable {
     }
 
     public String toString() {
-        return "PlainStreetEdge(" + getId() + ", " + name + ", " + fromv + " -> " + tov
+        return "PlainStreetEdge(" + name + ", " + fromv + " -> " + tov
                 + " length=" + this.getDistance() + " carSpeed=" + this.getCarSpeed()
                 + " permission=" + this.getPermission() + ")";
     }

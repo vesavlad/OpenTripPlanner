@@ -123,8 +123,6 @@ public class TestHalfEdges extends TestCase {
         station2 = new TransitStop(graph, s2);
         station1.addMode(TraverseMode.RAIL);
         station2.addMode(TraverseMode.RAIL);
-        
-        graph.rebuildVertexAndEdgeIndices();
     }
 
     public void testHalfEdges() {

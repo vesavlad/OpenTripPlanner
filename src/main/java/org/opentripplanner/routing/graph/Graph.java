@@ -111,8 +111,6 @@ public class Graph implements Serializable {
 
     private boolean debugData = true;
 
-    private transient Map<Integer, Edge> edgeById;
-
     public transient StreetVertexIndexService streetIndex;
 
     public transient GraphIndex index;
@@ -173,7 +171,6 @@ public class Graph implements Serializable {
     public Graph() {
         this.vertices = new ConcurrentHashMap<String, Vertex>();
         this.temporaryEdges = Collections.newSetFromMap(new ConcurrentHashMap<Edge, Boolean>());
-        this.edgeById = new ConcurrentHashMap<Integer, Edge>();
     }
     
     /**
@@ -216,19 +213,6 @@ public class Graph implements Serializable {
      */
     public Collection<Vertex> getVertices() {
         return this.vertices.values();
-    }
-    
-    /**
-     * Returns the edge with the given ID or null if none is present.
-     * 
-     * NOTE: you may need to run rebuildVertexAndEdgeIndices() for the indices
-     * to be accurate.
-     * 
-     * @param id
-     * @return
-     */
-    public Edge getEdgeById(int id) {
-        return edgeById.get(id);
     }
     
     /**
@@ -434,41 +418,6 @@ public class Graph implements Serializable {
         return ne;
     }
 
-    /**
-     * Add a collection of edges from the edgesById index.
-     * @param es
-     */
-    private void addEdgesToIndex(Collection<Edge> es) {
-        for (Edge e : es) {
-            this.edgeById.put(e.getId(), e);
-        }
-    }
-    
-    /**
-     * Rebuilds any indices on the basis of current vertex and edge IDs.
-     * 
-     * If you want the index to be accurate, you must run this every time the 
-     * vertex or edge set changes.
-     * 
-     * TODO(flamholz): keep the indices up to date with changes to the graph.
-     * This is not simple because the Vertex constructor may add itself to the graph
-     * before the Vertex has any edges, so updating indices on addVertex is insufficient.
-     */
-    public void rebuildVertexAndEdgeIndices() {
-        Collection<Vertex> vertices = getVertices();
-        // Create map from edge ids to edges.
-        this.edgeById = new HashMap<Integer, Edge>();
-        for (Vertex v : vertices) {
-            // TODO(flamholz): this check seems superfluous.
-            if (v == null) {
-                continue;
-            }
-
-            // Assumes that all the edges appear in at least one outgoing edge list.
-            addEdgesToIndex(v.getOutgoing());
-        }
-    }
-
     private void readObject(ObjectInputStream inputStream) throws ClassNotFoundException,
             IOException {
         inputStream.defaultReadObject();
@@ -544,7 +493,6 @@ public class Graph implements Serializable {
         streetIndex = indexFactory.newIndex(this);
         LOG.debug("street index built.");
         LOG.debug("Rebuilding edge and vertex indices.");
-        rebuildVertexAndEdgeIndices();
         Set<TripPattern> tableTripPatterns = Sets.newHashSet();
         for (PatternArriveVertex pav : Iterables.filter(this.getVertices(), PatternArriveVertex.class)) {
             tableTripPatterns.add(pav.getTripPattern());
@@ -665,8 +613,6 @@ public class Graph implements Serializable {
             if (v.getDegreeOut() + v.getDegreeIn() == 0)
                 LOG.debug("vertex {} has no edges, it will not survive serialization.", v);
         }
-        LOG.debug("Assigning vertex/edge ID numbers...");
-        this.rebuildVertexAndEdgeIndices();
         LOG.debug("Writing edges...");
         out.writeObject(this);
         out.writeObject(edges);
@@ -674,7 +620,6 @@ public class Graph implements Serializable {
             // should we make debug info generation conditional?
             LOG.debug("Writing debug data...");
             out.writeObject(this.graphBuilderAnnotations);
-            out.writeObject(this.edgeById);
         } else {
             LOG.debug("Skipping debug data.");
         }
@@ -698,10 +643,6 @@ public class Graph implements Serializable {
                 throw new RuntimeException(e);
             }
         }
-    }
-
-    public Integer getIdForEdge(Edge edge) {
-        return edge.getId();
     }
 
     public CalendarService getCalendarService() {

@@ -133,16 +133,6 @@ public class TestGraph extends TestCase {
         allEdges.add(edge(c, b, 1.0));
         allEdges.add(edge(c, a, 1.0));
 
-        // Before rebuilding the indices, they are empty.
-        for (Edge e : allEdges) {
-            assertNull(g.getEdgeById(e.getId()));
-        }
-
-        g.rebuildVertexAndEdgeIndices();
-        for (Edge e : allEdges) {
-            assertEquals(e, g.getEdgeById(e.getId()));
-        }
-
     }
 
     /**

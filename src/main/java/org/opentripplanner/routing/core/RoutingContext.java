@@ -13,6 +13,7 @@
 
 package org.opentripplanner.routing.core;
 
+import com.beust.jcommander.internal.Sets;
 import com.google.common.collect.Iterables;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
@@ -144,33 +145,29 @@ public class RoutingContext implements Cloneable {
     }
 
     /**
-     * Returns the PlainStreetEdges that overlap between two vertices edge sets.
+     * Returns the PlainStreetEdges that overlap between two vertices' edge sets.
      */
     private Set<StreetEdge> overlappingPlainStreetEdges(Vertex u, Vertex v) {
-        Set<Integer> vIds = new HashSet<Integer>();
-        Set<Integer> uIds = new HashSet<Integer>();
-        for (Edge e : Iterables.concat(v.getIncoming(), v.getOutgoing())) {
-            vIds.add(e.getId());
-        }
-        for (Edge e : Iterables.concat(u.getIncoming(), u.getOutgoing())) {
-            uIds.add(e.getId());
-        }
-        
-        // Intesection of edge IDs between u and v.
-        uIds.retainAll(vIds);
-        Set<Integer> overlappingIds = uIds;
+        Set<Edge> vs = Sets.newHashSet();
+        Set<Edge> us = Sets.newHashSet();
+        vs.addAll(v.getIncoming());
+        vs.addAll(v.getOutgoing());
+        us.addAll(u.getIncoming());
+        us.addAll(u.getOutgoing());
+
+        // Intesection of u and v.
+        us.retainAll(vs);
+        Set<Edge> overlapping = us;
 
         // Fetch the edges by ID - important so we aren't stuck with temporary edges.
-        Set<StreetEdge> overlap = new HashSet<StreetEdge>();
-        for (Integer id : overlappingIds) {
-            Edge e = graph.getEdgeById(id);
-            if (e == null || !(e instanceof StreetEdge)) {
+        Set<StreetEdge> result = new HashSet<StreetEdge>();
+        for (Edge e : overlapping) {
+            if (/* TODO IF E IS TEMPORARY || */ !(e instanceof StreetEdge) ) {
                 continue;
             }
-
-            overlap.add((StreetEdge) e);
+            result.add((StreetEdge) e);
         }
-        return overlap;
+        return result;
     }
 
     /**
@@ -246,7 +243,7 @@ public class RoutingContext implements Cloneable {
                 // non-batch mode, or arriveBy batch mode: we need a to vertex
                 toVertex = graph.streetIndex.getVertexForLocation(opt.to, opt);
                 if (opt.to.hasEdgeId()) {
-                    toBackEdge = graph.getEdgeById(opt.to.edgeId);
+                    toBackEdge = null; //graph.getEdgeById(opt.to.edgeId);
                 }
             } else {
                 toVertex = null;
@@ -261,7 +258,7 @@ public class RoutingContext implements Cloneable {
                 // non-batch mode, or depart-after batch mode: we need a from vertex
                 fromVertex = graph.streetIndex.getVertexForLocation(opt.from, opt, toVertex);
                 if (opt.from.hasEdgeId()) {
-                    fromBackEdge = graph.getEdgeById(opt.from.edgeId);
+                    fromBackEdge = null; //graph.getEdgeById(opt.from.edgeId);
                 }
             } else {
                 fromVertex = null;
@@ -285,9 +282,8 @@ public class RoutingContext implements Cloneable {
         if (fromVertex instanceof StreetLocation && toVertex instanceof StreetLocation) {
             StreetVertex fromStreetVertex = (StreetVertex) fromVertex;
             StreetVertex toStreetVertex = (StreetVertex) toVertex;
-            Set<StreetEdge> overlap = overlappingPlainStreetEdges(fromStreetVertex,
-                    toStreetVertex);
-
+            // TODO instead of all this craziness, shouldn't we just say "no point routing between two points on the same street segment"?
+            Set<StreetEdge> overlap = overlappingPlainStreetEdges(fromStreetVertex, toStreetVertex);
             for (StreetEdge pse : overlap) {
                 PartialStreetEdge ppse = makePartialEdgeAlong(pse, fromStreetVertex, toStreetVertex);
                 // Register this edge-fragment as a temporary edge so it will be assigned a routing context and cleaned up.
