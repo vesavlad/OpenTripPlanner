@@ -13,24 +13,40 @@
 
 package org.opentripplanner.gtfs.model;
 
+import com.google.common.base.Optional;
+import org.opentripplanner.gtfs.format.FeedFile;
+
+import java.net.URL;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
+
+import static org.opentripplanner.gtfs.format.FeedFile.AGENCY;
+import static org.opentripplanner.gtfs.validator.FeedValidator.optionalLocale;
+import static org.opentripplanner.gtfs.validator.FeedValidator.optionalString;
+import static org.opentripplanner.gtfs.validator.FeedValidator.optionalUrl;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredString;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredTz;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredUrl;
 
 public class Agency {
-    final public String agency_id;
+    final static public FeedFile FEED_FILE = AGENCY;
+
+    final public Optional<String> agency_id;
     final public String agency_name;
-    final public String agency_url;
-    final public String agency_timezone;
-    final public String agency_lang;
-    final public String agency_phone;
-    final public String agency_fare_url;
+    final public URL agency_url;
+    final public TimeZone agency_timezone;
+    final public Optional<Locale> agency_lang;
+    final public Optional<String> agency_phone;
+    final public Optional<URL> agency_fare_url;
 
     public Agency(Map<String, String> row) {
-        agency_id = row.get("agency_id");
-        agency_name = row.get("agency_name");
-        agency_url = row.get("agency_url");
-        agency_timezone = row.get("agency_timezone");
-        agency_lang = row.get("agency_lang");
-        agency_phone = row.get("agency_phone");
-        agency_fare_url = row.get("agency_fare_url");
+        agency_id = optionalString(row, "agency_id", FEED_FILE);
+        agency_name = requiredString(row, "agency_name", FEED_FILE);
+        agency_url = requiredUrl(row, "agency_url", FEED_FILE);
+        agency_timezone = requiredTz(row, "agency_timezone", FEED_FILE);
+        agency_lang = optionalLocale(row, "agency_lang", FEED_FILE);
+        agency_phone = optionalString(row, "agency_phone", FEED_FILE);
+        agency_fare_url = optionalUrl(row, "agency_fare_url", FEED_FILE);
     }
 }

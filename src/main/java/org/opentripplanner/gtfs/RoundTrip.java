@@ -15,6 +15,7 @@ package org.opentripplanner.gtfs;
 
 import com.csvreader.CsvWriter;
 import com.google.common.base.Function;
+import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import org.opentripplanner.gtfs.format.Feed;
 import org.opentripplanner.gtfs.model.Agency;
@@ -62,11 +63,11 @@ public class RoundTrip {
                             "agency_timezone", "agency_phone"});
                     for (Agency agency : iterable) {
                         final String fields[] = new String[5];
-                        fields[0] = agency.agency_id;
+                        fields[0] = agency.agency_id.get();
                         fields[1] = agency.agency_name;
-                        fields[2] = agency.agency_url;
-                        fields[3] = agency.agency_timezone;
-                        fields[4] = agency.agency_phone;
+                        fields[2] = agency.agency_url.toString();
+                        fields[3] = agency.agency_timezone.getID();
+                        fields[4] = agency.agency_phone.get();
                         csvWriter.writeRecord(fields);
                     }
                 } catch (Exception e) {
@@ -88,16 +89,18 @@ public class RoundTrip {
                         Stop stop = new Stop(row);
                         final String fields[] = new String[11];
                         fields[0] = stop.stop_id;
-                        fields[1] = stop.stop_code;
+                        fields[1] = stop.stop_code.get();
                         fields[2] = stop.stop_name;
-                        fields[3] = stop.stop_lat;
-                        fields[4] = stop.stop_lon;
-                        fields[5] = stop.location_type;
-                        fields[6] = stop.parent_station;
-                        fields[7] = stop.stop_timezone;
-                        fields[8] = stop.wheelchair_boarding;
+                        fields[3] = String.valueOf(stop.stop_lat);
+                        fields[4] = String.valueOf(stop.stop_lon);
+                        fields[5] = String.valueOf(stop.location_type);
+                        fields[6] = stop.parent_station.get();
+                        fields[7] = stop.stop_timezone.isPresent() ?
+                                stop.stop_timezone.get().getID() : "";
+                        fields[8] = Strings.isNullOrEmpty(row.get("wheelchair_boarding")) ?
+                                "" : String.valueOf(stop.wheelchair_boarding);
                         fields[9] = row.get("platform_code");
-                        fields[10] = stop.zone_id;
+                        fields[10] = stop.zone_id.get();
                         csvWriter.writeRecord(fields);
                     }
                 } catch (Exception e) {
@@ -111,28 +114,25 @@ public class RoundTrip {
 
             {
                 CsvWriter csvWriter = new CsvWriter("routes.txt", ',', UTF8);
-                Iterable<Route> iterable = Iterables.transform(feedValidator.routes,
-                        new Function<Map<String, String>, Route>() {
-                            @Override
-                            public Route apply(Map<String, String> row) {
-                                return new Route(row);
-                            }
-                        });
                 try {
                     csvWriter.writeRecord(new String[]{"route_id", "agency_id", "route_short_name",
                             "route_long_name", "route_desc", "route_type", "route_color",
                             "route_text_color", "route_url"});
-                    for (Route route : iterable) {
+                    for (Map<String, String> row : feedValidator.routes) {
+                        Route route = new Route(row);
                         final String fields[] = new String[9];
                         fields[0] = route.route_id;
-                        fields[1] = route.agency_id;
+                        fields[1] = route.agency_id.get();
                         fields[2] = route.route_short_name;
                         fields[3] = route.route_long_name;
-                        fields[4] = route.route_desc;
-                        fields[5] = route.route_type;
-                        fields[6] = route.route_color;
-                        fields[7] = route.route_text_color;
-                        fields[8] = route.route_url;
+                        fields[4] = route.route_desc.get();
+                        fields[5] = String.valueOf(route.route_type);
+                        fields[6] = Strings.isNullOrEmpty(row.get("route_color")) ?
+                                "" : String.format("%06x", route.route_color);
+                        fields[7] = Strings.isNullOrEmpty(row.get("route_text_color")) ?
+                                "" : String.format("%06x", route.route_text_color);
+                        fields[8] = route.route_url.isPresent() ?
+                                route.route_url.get().toString() : "";
                         csvWriter.writeRecord(fields);
                     }
                 } catch (Exception e) {
@@ -158,14 +158,15 @@ public class RoundTrip {
                         fields[1] = trip.service_id;
                         fields[2] = trip.trip_id;
                         fields[3] = row.get("realtime_trip_id");
-                        fields[4] = trip.trip_headsign;
-                        fields[5] = trip.trip_short_name;
+                        fields[4] = trip.trip_headsign.get();
+                        fields[5] = trip.trip_short_name.get();
                         fields[6] = row.get("trip_long_name");
-                        fields[7] = trip.direction_id;
-                        fields[8] = trip.block_id;
-                        fields[9] = trip.shape_id;
-                        fields[10] = trip.wheelchair_accessible;
-                        fields[11] = trip.bikes_allowed;
+                        fields[7] = trip.direction_id.get() ? "1" : "0";
+                        fields[8] = trip.block_id.get();
+                        fields[9] = trip.shape_id.get();
+                        fields[10] = String.valueOf(trip.wheelchair_accessible);
+                        fields[11] = Strings.isNullOrEmpty(row.get("bikes_allowed")) ?
+                                "" : String.valueOf(trip.bikes_allowed);
                         csvWriter.writeRecord(fields);
                     }
                 } catch (Exception e) {
@@ -188,15 +189,16 @@ public class RoundTrip {
                         StopTime stopTime = new StopTime(row);
                         final String fields[] = new String[11];
                         fields[0] = stopTime.trip_id;
-                        fields[1] = stopTime.stop_sequence;
+                        fields[1] = String.valueOf(stopTime.stop_sequence);
                         fields[2] = stopTime.stop_id;
-                        fields[3] = stopTime.stop_headsign;
-                        fields[4] = stopTime.arrival_time;
-                        fields[5] = stopTime.departure_time;
-                        fields[6] = stopTime.pickup_type;
-                        fields[7] = stopTime.drop_off_type;
+                        fields[3] = stopTime.stop_headsign.get();
+                        fields[4] = time(stopTime.arrival_time);
+                        fields[5] = time(stopTime.departure_time);
+                        fields[6] = String.valueOf(stopTime.pickup_type);
+                        fields[7] = String.valueOf(stopTime.drop_off_type);
                         fields[8] = row.get("timepoint");
-                        fields[9] = stopTime.shape_dist_traveled;
+                        fields[9] = stopTime.shape_dist_traveled.isPresent() ?
+                                String.format("%.0f", stopTime.shape_dist_traveled.get()) : "";
                         fields[10] = row.get("fare_units_traveled");
                         csvWriter.writeRecord(fields);
                     }
@@ -331,5 +333,14 @@ public class RoundTrip {
         }
 
         System.out.printf("Work done after %.9f seconds.\n", (System.nanoTime() - time) * 1e-9);
+    }
+
+    private static String time(int timestamp) {
+        if (timestamp == Integer.MIN_VALUE) {
+            return "";
+        } else {
+            return String.format("%02d:%02d:%02d",
+                    timestamp / 60 / 60, timestamp / 60 % 60, timestamp % 60);
+        }
     }
 }

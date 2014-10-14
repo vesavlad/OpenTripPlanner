@@ -13,28 +13,41 @@
 
 package org.opentripplanner.gtfs.model;
 
+import com.google.common.base.Optional;
+import org.opentripplanner.gtfs.format.FeedFile;
+
 import java.util.Map;
 
+import static org.opentripplanner.gtfs.format.FeedFile.TRIPS;
+import static org.opentripplanner.gtfs.validator.FeedValidator.optionalDouble;
+import static org.opentripplanner.gtfs.validator.FeedValidator.optionalInt;
+import static org.opentripplanner.gtfs.validator.FeedValidator.optionalString;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredInt;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredString;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredTimeOfDay;
+
 public class StopTime {
+    final static public FeedFile FEED_FILE = TRIPS;
+
     final public String trip_id;
-    final public String arrival_time;
-    final public String departure_time;
+    final public int arrival_time;
+    final public int departure_time;
     final public String stop_id;
-    final public String stop_sequence;
-    final public String stop_headsign;
-    final public String pickup_type;
-    final public String drop_off_type;
-    final public String shape_dist_traveled;
+    final public int stop_sequence;
+    final public Optional<String> stop_headsign;
+    final public int pickup_type;
+    final public int drop_off_type;
+    final public Optional<Double> shape_dist_traveled;
 
     public StopTime(Map<String, String> row) {
-        trip_id = row.get("trip_id");
-        arrival_time = row.get("arrival_time");
-        departure_time = row.get("departure_time");
-        stop_id = row.get("stop_id");
-        stop_sequence = row.get("stop_sequence");
-        stop_headsign = row.get("stop_headsign");
-        pickup_type = row.get("pickup_type");
-        drop_off_type = row.get("drop_off_type");
-        shape_dist_traveled = row.get("shape_dist_traveled");
+        trip_id = requiredString(row, "trip_id", FEED_FILE);
+        arrival_time = requiredTimeOfDay(row, "arrival_time", FEED_FILE);
+        departure_time = requiredTimeOfDay(row, "departure_time", FEED_FILE);
+        stop_id = requiredString(row, "stop_id", FEED_FILE);
+        stop_sequence = requiredInt(row, "stop_sequence", 0, Integer.MAX_VALUE, FEED_FILE);
+        stop_headsign = optionalString(row, "stop_headsign", FEED_FILE);
+        pickup_type = optionalInt(row, "pickup_type", 0, 3, FEED_FILE);
+        drop_off_type = requiredInt(row, "drop_off_type", 0, 3, FEED_FILE);
+        shape_dist_traveled = optionalDouble(row, "shape_dist_traveled", FEED_FILE);
     }
 }

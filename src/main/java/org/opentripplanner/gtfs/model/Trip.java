@@ -13,30 +13,41 @@
 
 package org.opentripplanner.gtfs.model;
 
+import com.google.common.base.Optional;
+import org.opentripplanner.gtfs.format.FeedFile;
+
 import java.util.Map;
 
+import static org.opentripplanner.gtfs.format.FeedFile.TRIPS;
+import static org.opentripplanner.gtfs.validator.FeedValidator.optionalBool;
+import static org.opentripplanner.gtfs.validator.FeedValidator.optionalInt;
+import static org.opentripplanner.gtfs.validator.FeedValidator.optionalString;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredString;
+
 public class Trip {
+    final static public FeedFile FEED_FILE = TRIPS;
+
     final public String route_id;
     final public String service_id;
     final public String trip_id;
-    final public String trip_headsign;
-    final public String trip_short_name;
-    final public String direction_id;
-    final public String block_id;
-    final public String shape_id;
-    final public String wheelchair_accessible;
-    final public String bikes_allowed;
+    final public Optional<String> trip_headsign;
+    final public Optional<String> trip_short_name;
+    final public Optional<Boolean> direction_id;
+    final public Optional<String> block_id;
+    final public Optional<String> shape_id;
+    final public int wheelchair_accessible;
+    final public int bikes_allowed;
 
     public Trip(Map<String, String> row) {
-        route_id = row.get("route_id");
-        service_id = row.get("service_id");
-        trip_id = row.get("trip_id");
-        trip_headsign = row.get("trip_headsign");
-        trip_short_name = row.get("trip_short_name");
-        direction_id = row.get("direction_id");
-        block_id = row.get("block_id");
-        shape_id = row.get("shape_id");
-        wheelchair_accessible = row.get("wheelchair_accessible");
-        bikes_allowed = row.get("bikes_allowed");
+        route_id = requiredString(row, "route_id", FEED_FILE);
+        service_id = requiredString(row, "service_id", FEED_FILE);
+        trip_id = requiredString(row, "trip_id", FEED_FILE);
+        trip_headsign = optionalString(row, "trip_headsign", FEED_FILE);
+        trip_short_name = optionalString(row, "trip_short_name", FEED_FILE);
+        direction_id = optionalBool(row, "direction_id", FEED_FILE);
+        block_id = optionalString(row, "block_id", FEED_FILE);
+        shape_id = optionalString(row, "shape_id", FEED_FILE);
+        wheelchair_accessible = optionalInt(row, "wheelchair_accessible", 0, 2, FEED_FILE);
+        bikes_allowed = optionalInt(row, "bikes_allowed", 0, 2, FEED_FILE);
     }
 }

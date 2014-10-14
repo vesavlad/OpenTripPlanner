@@ -15,12 +15,18 @@ package org.opentripplanner.gtfs.validator;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import org.opentripplanner.gtfs.format.Feed;
 import org.opentripplanner.gtfs.format.FeedFile;
 
+import java.net.URL;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 import static org.opentripplanner.gtfs.format.FeedFile.AGENCY;
 import static org.opentripplanner.gtfs.format.FeedFile.CALENDAR;
 import static org.opentripplanner.gtfs.format.FeedFile.CALENDAR_DATES;
@@ -70,6 +76,267 @@ public class FeedValidator {
         }
     }
 
+    public static String requiredString(Map<String, String> row, String column, FeedFile feedFile) {
+        String string = row.get(column);
+
+        if (string == null) {
+            throw new ValidationException(feedFile, "required column " + column + " not found");
+        } else {
+            return string;
+        }
+    }
+
+    public static Optional<String> optionalString(
+            Map<String, String> row, String column, FeedFile feedFile) {
+        String string = row.get(column);
+
+        if (string == null) {
+            return Optional.absent();
+        } else {
+            return Optional.of(string);
+        }
+    }
+
+    public static URL requiredUrl(Map<String, String> row, String column, FeedFile feedFile) {
+        return stringToUrl(requiredString(row, column, feedFile), feedFile);
+    }
+
+    public static Optional<URL> optionalUrl(
+            Map<String, String> row, String column, FeedFile feedFile) {
+        String string = row.get(column);
+
+        if (Strings.isNullOrEmpty(string)) {
+            return Optional.absent();
+        } else {
+            return Optional.of(stringToUrl(string, feedFile));
+        }
+    }
+
+    public static TimeZone requiredTz(Map<String, String> row, String column, FeedFile feedFile) {
+        return stringToTz(requiredString(row, column, feedFile), feedFile);
+    }
+
+    public static Optional<TimeZone> optionalTz(
+            Map<String, String> row, String column, FeedFile feedFile) {
+        String string = row.get(column);
+
+        if (Strings.isNullOrEmpty(string)) {
+            return Optional.absent();
+        } else {
+            return Optional.of(stringToTz(string, feedFile));
+        }
+    }
+
+    public static Optional<Locale> optionalLocale(
+            Map<String, String> row, String column, FeedFile feedFile) {
+        String string = row.get(column);
+
+        if (string == null) {
+            return Optional.absent();
+        } else {
+            return Optional.of(stringToLocale(string, feedFile));
+        }
+    }
+
+    public static double requiredDouble(
+            Map<String, String> row, String column, double min, double max, FeedFile feedFile) {
+        return stringToDouble(requiredString(row, column, feedFile), min, max, feedFile);
+    }
+
+    public static Optional<Double> optionalDouble(
+            Map<String, String> row, String column, FeedFile feedFile) {
+        String string = row.get(column);
+
+        if (Strings.isNullOrEmpty(string)) {
+            return Optional.absent();
+        } else {
+            return Optional.of(stringToDouble(string, 0, Double.MAX_VALUE, feedFile));
+        }
+    }
+
+    public static int requiredInt(
+            Map<String, String> row, String column, int min, int max, FeedFile feedFile) {
+        return stringToInt(requiredString(row, column, feedFile), min, max, feedFile);
+    }
+
+    public static int optionalInt(
+            Map<String, String> row, String column, int min, int max, FeedFile feedFile) {
+        String string = row.get(column);
+
+        if (Strings.isNullOrEmpty(string)) {
+            return 0;
+        } else {
+            return stringToInt(string, min, max, feedFile);
+        }
+    }
+
+    public static int optionalColor(
+            Map<String, String> row, String column, int defaultColor, FeedFile feedFile) {
+        String string = row.get(column);
+
+        if (Strings.isNullOrEmpty(string)) {
+            return defaultColor;
+        } else {
+            return stringHexToInt(string, 0X000000, 0XFFFFFF, feedFile);
+        }
+    }
+
+    public static boolean requiredBool(Map<String, String> row, String column, FeedFile feedFile) {
+        return stringBinToBool(requiredString(row, column, feedFile), feedFile);
+    }
+
+    public static Optional<Boolean> optionalBool(
+            Map<String, String> row, String column, FeedFile feedFile) {
+        String string = row.get(column);
+
+        if (string == null) {
+            return Optional.absent();
+        } else {
+            return Optional.of(stringBinToBool(string, feedFile));
+        }
+    }
+
+    public static int requiredTimeOfDay(Map<String, String> row, String column, FeedFile feedFile) {
+        final int hours, minutes, seconds;
+        String string = requiredString(row, column, feedFile);
+        String[] fields = string.split(":");
+
+        if (string.equals("")) {
+            return Integer.MIN_VALUE;
+        } else if (fields.length != 3) {
+            throw new ValidationException(feedFile, String.format(
+                    "wrong number of subfields in time (was %d, expected 3)",
+                    fields.length));
+        }
+
+        try {
+            hours = Integer.parseInt(fields[0]);
+            minutes = Integer.parseInt(fields[1]);
+            seconds = Integer.parseInt(fields[2]);
+        } catch (Exception e) {
+            throw new ValidationException(feedFile, e);
+        }
+
+        if (seconds < 0) throw new ValidationException(feedFile, String.format(
+                "seconds value out of range (was %d, must be at least 0)", seconds));
+        if (seconds > 59) throw new ValidationException(feedFile, String.format(
+                "seconds value out of range (was %d, must be no more than 59)", seconds));
+
+        if (minutes < 0) throw new ValidationException(feedFile, String.format(
+                "minutes value out of range (was %d, must be at least 0)", minutes));
+        if (minutes > 59) throw new ValidationException(feedFile, String.format(
+                "minutes value out of range (was %d, must be no more than 59)", minutes));
+
+        if (hours < 0) throw new ValidationException(feedFile, String.format(
+                "hours value out of range (was %d, must be at least 0)", hours));
+        // According to the General Transit Feed Specification Reference hours can legally exceed 23
+
+        return (hours * 60 * 60) + minutes * 60 + seconds;
+    }
+
+    private static URL stringToUrl(String string, FeedFile feedFile) {
+        try {
+            return new URL(string);
+        } catch (Exception e) {
+            throw new ValidationException(feedFile, e);
+        }
+    }
+
+    private static TimeZone stringToTz(String string, FeedFile feedFile) {
+        try {
+            return TimeZone.getTimeZone(string);
+        } catch (Exception e) {
+            throw new ValidationException(feedFile, e);
+        }
+    }
+
+    private static Locale stringToLocale(String string, FeedFile feedFile) {
+        try {
+            return new Locale(string);
+        } catch (Exception e) {
+            throw new ValidationException(feedFile, e);
+        }
+    }
+
+    private static double stringToDouble(String string, double min, double max, FeedFile feedFile) {
+        double value;
+
+        try {
+            value = Double.parseDouble(string);
+        } catch (Exception e) {
+            throw new ValidationException(feedFile, e);
+        }
+
+        if (value >= min) {
+            if (value <= max) {
+                return value;
+            } else {
+                throw new ValidationException(feedFile, String.format(
+                        "double value out of range (was %f, must be no more than %f)",
+                        value, max));
+            }
+        } else {
+            throw new ValidationException(feedFile, String.format(
+                    "double value out of range (was %f, must be at least %f)",
+                    value, min));
+        }
+    }
+
+    private static int stringToInt(String string, int min, int max, FeedFile feedFile) {
+        int value;
+
+        try {
+            value = Integer.parseInt(string);
+        } catch (Exception e) {
+            throw new ValidationException(feedFile, e);
+        }
+
+        if (value >= min) {
+            if (value <= max) {
+                return value;
+            } else {
+                throw new ValidationException(feedFile, String.format(
+                        "integer value out of range (was %d, must be no more than %d)",
+                        value, max));
+            }
+        } else {
+            throw new ValidationException(feedFile, String.format(
+                    "integer value out of range (was %d, must be at least %d)",
+                    value, min));
+        }
+    }
+
+    private static int stringHexToInt(String string, int min, int max, FeedFile feedFile) {
+        int value;
+
+        try {
+            value = Integer.parseInt(string, 16);
+        } catch (Exception e) {
+            throw new ValidationException(feedFile, e);
+        }
+
+        if (value >= min) {
+            if (value <= max) {
+                return value;
+            } else {
+                throw new ValidationException(feedFile, String.format(
+                        "hexadecimal integer value out of range (was %x, must be no more than %x)",
+                        value, max));
+            }
+        } else {
+            throw new ValidationException(feedFile, String.format(
+                    "hexadecimal integer value out of range (was %d, must be at least %d)",
+                    value, min));
+        }
+    }
+
+    private static Boolean stringBinToBool(String string, FeedFile feedFile) {
+        if ("0".equals(string)) return FALSE;
+        else if ("1".equals(string)) return TRUE;
+        else throw new ValidationException(feedFile, String.format(
+                "binary integer value out of range (was %s, must be 0 or 1)", string));
+    }
+
     private static Iterable<Map<String, String>> required(Feed feed, FeedFile feedFile) {
         Iterable<Map<String, String>> iterable = feed.get(feedFile.toString());
 
@@ -99,12 +366,12 @@ public class FeedValidator {
             public Map<String, String> apply(Map<String, String> input) {
                 line++;
 
-                if (input.keySet().size() != input.values().size()) {
+                if (input.keySet().size() == input.values().size()) {
+                    return input;
+                } else {
                     throw new ValidationException(feedFile, String.format(
                             "incorrect column count (expected %d cells, found %d cells) on line %d",
                             input.keySet().size(), input.values().size(), line));
-                } else {
-                    return input;
                 }
             }
         });

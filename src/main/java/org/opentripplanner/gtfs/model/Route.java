@@ -13,28 +13,41 @@
 
 package org.opentripplanner.gtfs.model;
 
+import com.google.common.base.Optional;
+import org.opentripplanner.gtfs.format.FeedFile;
+
+import java.net.URL;
 import java.util.Map;
 
+import static org.opentripplanner.gtfs.format.FeedFile.ROUTES;
+import static org.opentripplanner.gtfs.validator.FeedValidator.optionalColor;
+import static org.opentripplanner.gtfs.validator.FeedValidator.optionalString;
+import static org.opentripplanner.gtfs.validator.FeedValidator.optionalUrl;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredInt;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredString;
+
 public class Route {
+    final static public FeedFile FEED_FILE = ROUTES;
+
     final public String route_id;
-    final public String agency_id;
+    final public Optional<String> agency_id;
     final public String route_short_name;
     final public String route_long_name;
-    final public String route_desc;
-    final public String route_type;
-    final public String route_url;
-    final public String route_color;
-    final public String route_text_color;
+    final public Optional<String> route_desc;
+    final public int route_type;
+    final public Optional<URL> route_url;
+    final public int route_color;
+    final public int route_text_color;
 
     public Route(Map<String, String> row) {
-        route_id = row.get("route_id");
-        agency_id = row.get("agency_id");
-        route_short_name = row.get("route_short_name");
-        route_long_name = row.get("route_long_name");
-        route_desc = row.get("route_desc");
-        route_type = row.get("route_type");
-        route_url = row.get("route_url");
-        route_color = row.get("route_color");
-        route_text_color = row.get("route_text_color");
+        route_id = requiredString(row, "route_id", FEED_FILE);
+        agency_id = optionalString(row, "agency_id", FEED_FILE);
+        route_short_name = requiredString(row, "route_short_name", FEED_FILE);
+        route_long_name = requiredString(row, "route_long_name", FEED_FILE);
+        route_desc = optionalString(row, "route_desc", FEED_FILE);
+        route_type = requiredInt(row, "route_type",0, 7, FEED_FILE);
+        route_url = optionalUrl(row, "route_url", FEED_FILE);
+        route_color = optionalColor(row, "route_color", 0XFFFFFF, FEED_FILE);
+        route_text_color = optionalColor(row, "route_text_color", 0X000000, FEED_FILE);
     }
 }

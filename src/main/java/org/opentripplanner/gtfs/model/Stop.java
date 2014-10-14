@@ -13,34 +13,49 @@
 
 package org.opentripplanner.gtfs.model;
 
+import com.google.common.base.Optional;
+import org.opentripplanner.gtfs.format.FeedFile;
+
+import java.net.URL;
 import java.util.Map;
+import java.util.TimeZone;
+
+import static org.opentripplanner.gtfs.format.FeedFile.STOPS;
+import static org.opentripplanner.gtfs.validator.FeedValidator.optionalInt;
+import static org.opentripplanner.gtfs.validator.FeedValidator.optionalString;
+import static org.opentripplanner.gtfs.validator.FeedValidator.optionalTz;
+import static org.opentripplanner.gtfs.validator.FeedValidator.optionalUrl;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredDouble;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredString;
 
 public class Stop {
+    final static public FeedFile FEED_FILE = STOPS;
+
     final public String stop_id;
-    final public String stop_code;
+    final public Optional<String> stop_code;
     final public String stop_name;
-    final public String stop_desc;
-    final public String stop_lat;
-    final public String stop_lon;
-    final public String zone_id;
-    final public String stop_url;
-    final public String location_type;
-    final public String parent_station;
-    final public String stop_timezone;
-    final public String wheelchair_boarding;
+    final public Optional<String> stop_desc;
+    final public double stop_lat;
+    final public double stop_lon;
+    final public Optional<String> zone_id;
+    final public Optional<URL> stop_url;
+    final public int location_type;
+    final public Optional<String> parent_station;
+    final public Optional<TimeZone> stop_timezone;
+    final public int wheelchair_boarding;
 
     public Stop(Map<String, String> row) {
-        stop_id = row.get("stop_id");
-        stop_code = row.get("stop_code");
-        stop_name = row.get("stop_name");
-        stop_desc = row.get("stop_desc");
-        stop_lat = row.get("stop_lat");
-        stop_lon = row.get("stop_lon");
-        zone_id = row.get("zone_id");
-        stop_url = row.get("stop_url");
-        location_type = row.get("location_type");
-        parent_station = row.get("parent_station");
-        stop_timezone = row.get("stop_timezone");
-        wheelchair_boarding = row.get("wheelchair_boarding");
+        stop_id = requiredString(row, "stop_id", FEED_FILE);
+        stop_code = optionalString(row, "stop_code", FEED_FILE);
+        stop_name = requiredString(row, "stop_name", FEED_FILE);
+        stop_desc = optionalString(row, "stop_desc", FEED_FILE);
+        stop_lat = requiredDouble(row, "stop_lat", -90, 90, FEED_FILE);
+        stop_lon = requiredDouble(row, "stop_lon", -180, 180, FEED_FILE);
+        zone_id = optionalString(row, "zone_id", FEED_FILE);
+        stop_url = optionalUrl(row, "stop_url", FEED_FILE);
+        location_type = optionalInt(row, "location_type", 0, 1, FEED_FILE);
+        parent_station = optionalString(row, "parent_station", FEED_FILE);
+        stop_timezone = optionalTz(row, "stop_timezone", FEED_FILE);
+        wheelchair_boarding = optionalInt(row, "wheelchair_boarding", 0, 2, FEED_FILE);
     }
 }
