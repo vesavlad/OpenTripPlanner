@@ -13,22 +13,36 @@
 
 package org.opentripplanner.gtfs.model;
 
+import com.google.common.base.Optional;
+import org.opentripplanner.gtfs.format.FeedFile;
+
+import java.util.Currency;
 import java.util.Map;
 
+import static org.opentripplanner.gtfs.format.FeedFile.FARE_ATTRIBUTES;
+import static org.opentripplanner.gtfs.validator.FeedValidator.optionalInt;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredCurrency;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredDouble;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredInt;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredIntOptionalValue;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredString;
+
 public class FareAttribute {
+    final static public FeedFile FEED_FILE = FARE_ATTRIBUTES;
+
     final public String fare_id;
-    final public String price;
-    final public String currency_type;
-    final public String payment_method;
-    final public String transfers;
-    final public String transfer_duration;
+    final public double price;
+    final public Currency currency_type;
+    final public int payment_method;
+    final public Optional<Integer> transfers;
+    final public Optional<Integer> transfer_duration;
 
     public FareAttribute(Map<String, String> row) {
-        fare_id = row.get("fare_id");
-        price = row.get("price");
-        currency_type = row.get("currency_type");
-        payment_method = row.get("payment_method");
-        transfers = row.get("transfers");
-        transfer_duration = row.get("transfer_duration");
+        fare_id = requiredString(row, "fare_id", FEED_FILE);
+        price = requiredDouble(row, "price", 0, Double.MAX_VALUE, FEED_FILE);
+        currency_type = requiredCurrency(row, "currency_type", FEED_FILE);
+        payment_method = requiredInt(row, "payment_method", 0, 1, FEED_FILE);
+        transfers = requiredIntOptionalValue(row, "transfers", 0, 2, FEED_FILE);
+        transfer_duration = optionalInt(row, "transfer_duration", 0, Integer.MAX_VALUE, FEED_FILE);
     }
 }

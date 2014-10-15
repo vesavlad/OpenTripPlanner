@@ -13,30 +13,40 @@
 
 package org.opentripplanner.gtfs.model;
 
+import org.joda.time.LocalDate;
+import org.opentripplanner.gtfs.format.FeedFile;
+
 import java.util.Map;
 
+import static org.opentripplanner.gtfs.format.FeedFile.CALENDAR;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredBool;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredDate;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredString;
+
 public class Calendar {
+    final static public FeedFile FEED_FILE = CALENDAR;
+
     final public String service_id;
-    final public String monday;
-    final public String tuesday;
-    final public String wednesday;
-    final public String thursday;
-    final public String friday;
-    final public String saturday;
-    final public String sunday;
-    final public String start_date;
-    final public String end_date;
+    final public boolean monday;
+    final public boolean tuesday;
+    final public boolean wednesday;
+    final public boolean thursday;
+    final public boolean friday;
+    final public boolean saturday;
+    final public boolean sunday;
+    final public LocalDate start_date;
+    final public LocalDate end_date;
 
     public Calendar(Map<String, String> row) {
-        service_id = row.get("service_id");
-        monday = row.get("monday");
-        tuesday = row.get("tuesday");
-        wednesday = row.get("wednesday");
-        thursday = row.get("thursday");
-        friday = row.get("friday");
-        saturday = row.get("saturday");
-        sunday = row.get("sunday");
-        start_date = row.get("start_date");
-        end_date = row.get("end_date");
+        service_id = requiredString(row, "service_id", FEED_FILE);
+        monday = requiredBool(row, "monday", FEED_FILE);
+        tuesday = requiredBool(row, "tuesday", FEED_FILE);
+        wednesday = requiredBool(row, "wednesday", FEED_FILE);
+        thursday = requiredBool(row, "thursday", FEED_FILE);
+        friday = requiredBool(row, "friday", FEED_FILE);
+        saturday = requiredBool(row, "saturday", FEED_FILE);
+        sunday = requiredBool(row, "sunday", FEED_FILE);
+        start_date = requiredDate(row, "start_date", FEED_FILE);
+        end_date = requiredDate(row, "end_date", FEED_FILE);
     }
 }

@@ -13,20 +13,31 @@
 
 package org.opentripplanner.gtfs.model;
 
+import com.google.common.base.Optional;
+import org.opentripplanner.gtfs.format.FeedFile;
+
 import java.util.Map;
 
+import static org.opentripplanner.gtfs.format.FeedFile.FREQUENCIES;
+import static org.opentripplanner.gtfs.validator.FeedValidator.optionalInt;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredInt;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredString;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredTimeOfDay;
+
 public class Frequency {
+    final static public FeedFile FEED_FILE = FREQUENCIES;
+
     final public String trip_id;
-    final public String start_time;
-    final public String end_time;
-    final public String headway_secs;
-    final public String exact_times;
+    final public int start_time;
+    final public int end_time;
+    final public int headway_secs;
+    final public Optional<Integer> exact_times;
 
     public Frequency(Map<String, String> row) {
-        trip_id = row.get("trip_id");
-        start_time = row.get("start_time");
-        end_time = row.get("end_time");
-        headway_secs = row.get("headway_secs");
-        exact_times = row.get("exact_times");
+        trip_id = requiredString(row, "trip_id", FEED_FILE);
+        start_time = requiredTimeOfDay(row, "start_time", FEED_FILE);
+        end_time = requiredTimeOfDay(row, "end_time", FEED_FILE);
+        headway_secs = requiredInt(row, "headway_secs", 0, Integer.MAX_VALUE, FEED_FILE);
+        exact_times = optionalInt(row, "exact_times", 0, 1, FEED_FILE);
     }
 }

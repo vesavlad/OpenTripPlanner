@@ -13,22 +13,37 @@
 
 package org.opentripplanner.gtfs.model;
 
+import com.google.common.base.Optional;
+import org.joda.time.LocalDate;
+import org.opentripplanner.gtfs.format.FeedFile;
+
+import java.net.URL;
+import java.util.Locale;
 import java.util.Map;
 
+import static org.opentripplanner.gtfs.format.FeedFile.FEED_INFO;
+import static org.opentripplanner.gtfs.validator.FeedValidator.optionalDate;
+import static org.opentripplanner.gtfs.validator.FeedValidator.optionalString;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredLang;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredString;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredUrl;
+
 public class FeedInfo {
+    final static public FeedFile FEED_FILE = FEED_INFO;
+
     final public String feed_publisher_name;
-    final public String feed_publisher_url;
-    final public String feed_lang;
-    final public String feed_start_date;
-    final public String feed_end_date;
-    final public String feed_version;
+    final public URL feed_publisher_url;
+    final public Locale feed_lang;
+    final public Optional<LocalDate> feed_start_date;
+    final public Optional<LocalDate> feed_end_date;
+    final public Optional<String> feed_version;
 
     public FeedInfo(Map<String, String> row) {
-        feed_publisher_name = row.get("feed_publisher_name");
-        feed_publisher_url = row.get("feed_publisher_url");
-        feed_lang = row.get("feed_lang");
-        feed_start_date = row.get("feed_start_date");
-        feed_end_date = row.get("feed_end_date");
-        feed_version = row.get("feed_version");
+        feed_publisher_name = requiredString(row, "feed_publisher_name", FEED_FILE);
+        feed_publisher_url = requiredUrl(row, "feed_publisher_url", FEED_FILE);
+        feed_lang = requiredLang(row, "feed_lang", FEED_FILE);
+        feed_start_date = optionalDate(row, "feed_start_date", FEED_FILE);
+        feed_end_date = optionalDate(row, "feed_end_date", FEED_FILE);
+        feed_version = optionalString(row, "feed_version", FEED_FILE);
     }
 }

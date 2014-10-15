@@ -39,10 +39,10 @@ public class Stop {
     final public double stop_lon;
     final public Optional<String> zone_id;
     final public Optional<URL> stop_url;
-    final public int location_type;
+    final public Optional<Integer> location_type;
     final public Optional<String> parent_station;
     final public Optional<TimeZone> stop_timezone;
-    final public int wheelchair_boarding;
+    final public Optional<Integer> wheelchair_boarding;
 
     public Stop(Map<String, String> row) {
         stop_id = requiredString(row, "stop_id", FEED_FILE);

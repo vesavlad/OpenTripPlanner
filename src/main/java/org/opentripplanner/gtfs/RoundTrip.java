@@ -17,6 +17,7 @@ import com.csvreader.CsvWriter;
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
+import org.joda.time.LocalDate;
 import org.opentripplanner.gtfs.format.Feed;
 import org.opentripplanner.gtfs.model.Agency;
 import org.opentripplanner.gtfs.model.CalendarDate;
@@ -93,12 +94,13 @@ public class RoundTrip {
                         fields[2] = stop.stop_name;
                         fields[3] = String.valueOf(stop.stop_lat);
                         fields[4] = String.valueOf(stop.stop_lon);
-                        fields[5] = String.valueOf(stop.location_type);
+                        fields[5] = stop.location_type.isPresent() ?
+                                    String.valueOf(stop.location_type.get()) : "";
                         fields[6] = stop.parent_station.get();
                         fields[7] = stop.stop_timezone.isPresent() ?
-                                stop.stop_timezone.get().getID() : "";
-                        fields[8] = Strings.isNullOrEmpty(row.get("wheelchair_boarding")) ?
-                                "" : String.valueOf(stop.wheelchair_boarding);
+                                    stop.stop_timezone.get().getID() : "";
+                        fields[8] = stop.wheelchair_boarding.isPresent() ?
+                                    String.valueOf(stop.wheelchair_boarding.get()) : "";
                         fields[9] = row.get("platform_code");
                         fields[10] = stop.zone_id.get();
                         csvWriter.writeRecord(fields);
@@ -128,11 +130,11 @@ public class RoundTrip {
                         fields[4] = route.route_desc.get();
                         fields[5] = String.valueOf(route.route_type);
                         fields[6] = Strings.isNullOrEmpty(row.get("route_color")) ?
-                                "" : String.format("%06x", route.route_color);
+                                    "" : String.format("%06x", route.route_color);
                         fields[7] = Strings.isNullOrEmpty(row.get("route_text_color")) ?
-                                "" : String.format("%06x", route.route_text_color);
+                                    "" : String.format("%06x", route.route_text_color);
                         fields[8] = route.route_url.isPresent() ?
-                                route.route_url.get().toString() : "";
+                                    route.route_url.get().toString() : "";
                         csvWriter.writeRecord(fields);
                     }
                 } catch (Exception e) {
@@ -164,9 +166,10 @@ public class RoundTrip {
                         fields[7] = trip.direction_id.get() ? "1" : "0";
                         fields[8] = trip.block_id.get();
                         fields[9] = trip.shape_id.get();
-                        fields[10] = String.valueOf(trip.wheelchair_accessible);
-                        fields[11] = Strings.isNullOrEmpty(row.get("bikes_allowed")) ?
-                                "" : String.valueOf(trip.bikes_allowed);
+                        fields[10] = trip.wheelchair_accessible.isPresent() ?
+                                     String.valueOf(trip.wheelchair_accessible.get()) : "";
+                        fields[11] = trip.bikes_allowed.isPresent() ?
+                                     String.valueOf(trip.bikes_allowed.get()) : "";
                         csvWriter.writeRecord(fields);
                     }
                 } catch (Exception e) {
@@ -194,11 +197,11 @@ public class RoundTrip {
                         fields[3] = stopTime.stop_headsign.get();
                         fields[4] = time(stopTime.arrival_time);
                         fields[5] = time(stopTime.departure_time);
-                        fields[6] = String.valueOf(stopTime.pickup_type);
-                        fields[7] = String.valueOf(stopTime.drop_off_type);
+                        fields[6] = String.valueOf(stopTime.pickup_type.get());
+                        fields[7] = String.valueOf(stopTime.drop_off_type.get());
                         fields[8] = row.get("timepoint");
                         fields[9] = stopTime.shape_dist_traveled.isPresent() ?
-                                String.format("%.0f", stopTime.shape_dist_traveled.get()) : "";
+                                    String.format("%.0f", stopTime.shape_dist_traveled.get()) : "";
                         fields[10] = row.get("fare_units_traveled");
                         csvWriter.writeRecord(fields);
                     }
@@ -226,8 +229,8 @@ public class RoundTrip {
                     for (CalendarDate calendarDate : iterable) {
                         final String fields[] = new String[3];
                         fields[0] = calendarDate.service_id;
-                        fields[1] = calendarDate.date;
-                        fields[2] = calendarDate.exception_type;
+                        fields[1] = date(calendarDate.date);
+                        fields[2] = String.valueOf(calendarDate.exception_type);
                         csvWriter.writeRecord(fields);
                     }
                 } catch (Exception e) {
@@ -256,10 +259,15 @@ public class RoundTrip {
                     for (Shape shape : iterable) {
                         final String fields[] = new String[5];
                         fields[0] = shape.shape_id;
-                        fields[1] = shape.shape_pt_sequence;
-                        fields[2] = shape.shape_pt_lat;
-                        fields[3] = shape.shape_pt_lon;
-                        fields[4] = shape.shape_dist_traveled;
+                        fields[1] = String.valueOf(shape.shape_pt_sequence);
+                        fields[2] = String.valueOf(Math.IEEEremainder(shape.shape_pt_lat, 1) == 0 ?
+                                    String.format("%.0f", shape.shape_pt_lat) :
+                                    String.valueOf(shape.shape_pt_lat));
+                        fields[3] = String.valueOf(Math.IEEEremainder(shape.shape_pt_lon, 1) == 0 ?
+                                    String.format("%.0f", shape.shape_pt_lon) :
+                                    String.valueOf(shape.shape_pt_lon));
+                        fields[4] = shape.shape_dist_traveled.isPresent() ?
+                                    String.format("%.0f", shape.shape_dist_traveled.get()) : "";
                         csvWriter.writeRecord(fields);
                     }
                 } catch (Exception e) {
@@ -288,7 +296,7 @@ public class RoundTrip {
                         fields[3] = row.get("to_route_id");
                         fields[4] = row.get("from_trip_id");
                         fields[5] = row.get("to_trip_id");
-                        fields[6] = transfer.transfer_type;
+                        fields[6] = transfer.transfer_type.get().toString();
                         csvWriter.writeRecord(fields);
                     }
                 } catch (Exception e) {
@@ -313,11 +321,11 @@ public class RoundTrip {
                         final String fields[] = new String[7];
                         fields[0] = feedInfo.feed_publisher_name;
                         fields[1] = row.get("feed_id");
-                        fields[2] = feedInfo.feed_publisher_url;
-                        fields[3] = feedInfo.feed_lang;
-                        fields[4] = feedInfo.feed_start_date;
-                        fields[5] = feedInfo.feed_end_date;
-                        fields[6] = feedInfo.feed_version;
+                        fields[2] = feedInfo.feed_publisher_url.toString();
+                        fields[3] = feedInfo.feed_lang.getLanguage();
+                        fields[4] = date(feedInfo.feed_start_date.get());
+                        fields[5] = date(feedInfo.feed_end_date.get());
+                        fields[6] = feedInfo.feed_version.get();
                         csvWriter.writeRecord(fields);
                     }
                 } catch (Exception e) {
@@ -342,5 +350,10 @@ public class RoundTrip {
             return String.format("%02d:%02d:%02d",
                     timestamp / 60 / 60, timestamp / 60 % 60, timestamp % 60);
         }
+    }
+
+    private static String date(LocalDate localDate) {
+        return String.format("%04d%02d%02d",
+                        localDate.getYear(), localDate.getMonthOfYear(), localDate.getDayOfMonth());
     }
 }

@@ -13,20 +13,29 @@
 
 package org.opentripplanner.gtfs.model;
 
+import com.google.common.base.Optional;
+import org.opentripplanner.gtfs.format.FeedFile;
+
 import java.util.Map;
 
+import static org.opentripplanner.gtfs.format.FeedFile.FARE_RULES;
+import static org.opentripplanner.gtfs.validator.FeedValidator.optionalString;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredString;
+
 public class FareRule {
+    final static public FeedFile FEED_FILE = FARE_RULES;
+
     final public String fare_id;
-    final public String route_id;
-    final public String origin_id;
-    final public String destination_id;
-    final public String contains_id;
+    final public Optional<String> route_id;
+    final public Optional<String> origin_id;
+    final public Optional<String> destination_id;
+    final public Optional<String> contains_id;
 
     public FareRule(Map<String, String> row) {
-        fare_id = row.get("fare_id");
-        route_id = row.get("route_id");
-        origin_id = row.get("origin_id");
-        destination_id = row.get("destination_id");
-        contains_id = row.get("contains_id");
+        fare_id = requiredString(row, "fare_id", FEED_FILE);
+        route_id = optionalString(row, "route_id", FEED_FILE);
+        origin_id = optionalString(row, "origin_id", FEED_FILE);
+        destination_id = optionalString(row, "destination_id", FEED_FILE);
+        contains_id = optionalString(row, "contains_id", FEED_FILE);
     }
 }

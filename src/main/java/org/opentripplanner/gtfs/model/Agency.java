@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import static org.opentripplanner.gtfs.format.FeedFile.AGENCY;
-import static org.opentripplanner.gtfs.validator.FeedValidator.optionalLocale;
+import static org.opentripplanner.gtfs.validator.FeedValidator.optionalLang;
 import static org.opentripplanner.gtfs.validator.FeedValidator.optionalString;
 import static org.opentripplanner.gtfs.validator.FeedValidator.optionalUrl;
 import static org.opentripplanner.gtfs.validator.FeedValidator.requiredString;
@@ -45,7 +45,7 @@ public class Agency {
         agency_name = requiredString(row, "agency_name", FEED_FILE);
         agency_url = requiredUrl(row, "agency_url", FEED_FILE);
         agency_timezone = requiredTz(row, "agency_timezone", FEED_FILE);
-        agency_lang = optionalLocale(row, "agency_lang", FEED_FILE);
+        agency_lang = optionalLang(row, "agency_lang", FEED_FILE);
         agency_phone = optionalString(row, "agency_phone", FEED_FILE);
         agency_fare_url = optionalUrl(row, "agency_fare_url", FEED_FILE);
     }

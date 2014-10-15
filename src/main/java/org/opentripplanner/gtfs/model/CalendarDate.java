@@ -13,16 +13,26 @@
 
 package org.opentripplanner.gtfs.model;
 
+import org.joda.time.LocalDate;
+import org.opentripplanner.gtfs.format.FeedFile;
+
 import java.util.Map;
 
+import static org.opentripplanner.gtfs.format.FeedFile.CALENDAR_DATES;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredDate;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredInt;
+import static org.opentripplanner.gtfs.validator.FeedValidator.requiredString;
+
 public class CalendarDate {
+    final static public FeedFile FEED_FILE = CALENDAR_DATES;
+
     final public String service_id;
-    final public String date;
-    final public String exception_type;
+    final public LocalDate date;
+    final public int exception_type;
 
     public CalendarDate(Map<String, String> row) {
-        service_id = row.get("service_id");
-        date = row.get("date");
-        exception_type = row.get("exception_type");
+        service_id = requiredString(row, "service_id", FEED_FILE);
+        date = requiredDate(row, "date", FEED_FILE);
+        exception_type = requiredInt(row, "exception_type", 1, 2, FEED_FILE);
     }
 }

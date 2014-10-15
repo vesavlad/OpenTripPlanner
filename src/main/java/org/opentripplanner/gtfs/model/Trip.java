@@ -35,8 +35,8 @@ public class Trip {
     final public Optional<Boolean> direction_id;
     final public Optional<String> block_id;
     final public Optional<String> shape_id;
-    final public int wheelchair_accessible;
-    final public int bikes_allowed;
+    final public Optional<Integer> wheelchair_accessible;
+    final public Optional<Integer> bikes_allowed;
 
     public Trip(Map<String, String> row) {
         route_id = requiredString(row, "route_id", FEED_FILE);

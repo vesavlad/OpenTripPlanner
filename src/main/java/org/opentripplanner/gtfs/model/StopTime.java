@@ -18,7 +18,7 @@ import org.opentripplanner.gtfs.format.FeedFile;
 
 import java.util.Map;
 
-import static org.opentripplanner.gtfs.format.FeedFile.TRIPS;
+import static org.opentripplanner.gtfs.format.FeedFile.STOP_TIMES;
 import static org.opentripplanner.gtfs.validator.FeedValidator.optionalDouble;
 import static org.opentripplanner.gtfs.validator.FeedValidator.optionalInt;
 import static org.opentripplanner.gtfs.validator.FeedValidator.optionalString;
@@ -27,7 +27,7 @@ import static org.opentripplanner.gtfs.validator.FeedValidator.requiredString;
 import static org.opentripplanner.gtfs.validator.FeedValidator.requiredTimeOfDay;
 
 public class StopTime {
-    final static public FeedFile FEED_FILE = TRIPS;
+    final static public FeedFile FEED_FILE = STOP_TIMES;
 
     final public String trip_id;
     final public int arrival_time;
@@ -35,8 +35,8 @@ public class StopTime {
     final public String stop_id;
     final public int stop_sequence;
     final public Optional<String> stop_headsign;
-    final public int pickup_type;
-    final public int drop_off_type;
+    final public Optional<Integer> pickup_type;
+    final public Optional<Integer> drop_off_type;
     final public Optional<Double> shape_dist_traveled;
 
     public StopTime(Map<String, String> row) {
@@ -47,7 +47,7 @@ public class StopTime {
         stop_sequence = requiredInt(row, "stop_sequence", 0, Integer.MAX_VALUE, FEED_FILE);
         stop_headsign = optionalString(row, "stop_headsign", FEED_FILE);
         pickup_type = optionalInt(row, "pickup_type", 0, 3, FEED_FILE);
-        drop_off_type = requiredInt(row, "drop_off_type", 0, 3, FEED_FILE);
+        drop_off_type = optionalInt(row, "drop_off_type", 0, 3, FEED_FILE);
         shape_dist_traveled = optionalDouble(row, "shape_dist_traveled", FEED_FILE);
     }
 }
