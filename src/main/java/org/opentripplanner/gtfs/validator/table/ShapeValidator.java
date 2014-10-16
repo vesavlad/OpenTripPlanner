@@ -20,11 +20,11 @@ import org.opentripplanner.gtfs.model.Shape;
 import java.util.Iterator;
 import java.util.Map;
 
-import static org.opentripplanner.gtfs.model.Shape.FEED_FILE;
+import static org.opentripplanner.gtfs.format.FeedFile.SHAPES;
 
 public class ShapeValidator extends TableValidator<Shape> {
     public ShapeValidator(Iterable<Map<String, String>> input) {
-        super(FEED_FILE, input);
+        super(SHAPES, input);
     }
 
     @Override
@@ -33,7 +33,8 @@ public class ShapeValidator extends TableValidator<Shape> {
                 new Function<Map<String, String>, Shape>() {
                     @Override
                     public Shape apply(Map<String, String> row) {
-                        return new Shape(row);
+                        ShapeValidator.super.row = row;
+                        return new Shape(ShapeValidator.this);
                     }
                 });
     }

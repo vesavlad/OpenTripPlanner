@@ -20,11 +20,11 @@ import org.opentripplanner.gtfs.model.StopTime;
 import java.util.Iterator;
 import java.util.Map;
 
-import static org.opentripplanner.gtfs.model.StopTime.FEED_FILE;
+import static org.opentripplanner.gtfs.format.FeedFile.STOP_TIMES;
 
 public class StopTimeValidator extends TableValidator<StopTime> {
     public StopTimeValidator(Iterable<Map<String, String>> input) {
-        super(FEED_FILE, input);
+        super(STOP_TIMES, input);
     }
 
     @Override
@@ -33,7 +33,8 @@ public class StopTimeValidator extends TableValidator<StopTime> {
                 new Function<Map<String, String>, StopTime>() {
                     @Override
                     public StopTime apply(Map<String, String> row) {
-                        return new StopTime(row);
+                        StopTimeValidator.super.row = row;
+                        return new StopTime(StopTimeValidator.this);
                     }
                 });
     }

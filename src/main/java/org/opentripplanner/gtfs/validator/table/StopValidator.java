@@ -20,11 +20,11 @@ import org.opentripplanner.gtfs.model.Stop;
 import java.util.Iterator;
 import java.util.Map;
 
-import static org.opentripplanner.gtfs.model.Stop.FEED_FILE;
+import static org.opentripplanner.gtfs.format.FeedFile.STOPS;
 
 public class StopValidator extends TableValidator<Stop> {
     public StopValidator(Iterable<Map<String, String>> input) {
-        super(FEED_FILE, input);
+        super(STOPS, input);
     }
 
     @Override
@@ -33,7 +33,8 @@ public class StopValidator extends TableValidator<Stop> {
                 new Function<Map<String, String>, Stop>() {
                     @Override
                     public Stop apply(Map<String, String> row) {
-                        return new Stop(row);
+                        StopValidator.super.row = row;
+                        return new Stop(StopValidator.this);
                     }
                 });
     }

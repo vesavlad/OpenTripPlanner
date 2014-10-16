@@ -14,25 +14,16 @@
 package org.opentripplanner.gtfs.model;
 
 import org.joda.time.LocalDate;
-import org.opentripplanner.gtfs.format.FeedFile;
-
-import java.util.Map;
-
-import static org.opentripplanner.gtfs.format.FeedFile.CALENDAR_DATES;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredDate;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredInt;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredString;
+import org.opentripplanner.gtfs.validator.table.CalendarDateValidator;
 
 public class CalendarDate {
-    final static public FeedFile FEED_FILE = CALENDAR_DATES;
-
     final public String service_id;
     final public LocalDate date;
     final public int exception_type;
 
-    public CalendarDate(Map<String, String> row) {
-        service_id = requiredString(row, "service_id", FEED_FILE);
-        date = requiredDate(row, "date", FEED_FILE);
-        exception_type = requiredInt(row, "exception_type", 1, 2, FEED_FILE);
+    public CalendarDate(CalendarDateValidator validator) {
+        service_id = validator.requiredString("service_id");
+        date = validator.requiredDate("date");
+        exception_type = validator.requiredInt("exception_type", 1, 2);
     }
 }

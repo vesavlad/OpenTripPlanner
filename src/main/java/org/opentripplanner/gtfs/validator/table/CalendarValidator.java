@@ -20,11 +20,11 @@ import org.opentripplanner.gtfs.model.Calendar;
 import java.util.Iterator;
 import java.util.Map;
 
-import static org.opentripplanner.gtfs.model.Calendar.FEED_FILE;
+import static org.opentripplanner.gtfs.format.FeedFile.CALENDAR;
 
 public class CalendarValidator extends TableValidator<Calendar> {
     public CalendarValidator(Iterable<Map<String, String>> input) {
-        super(FEED_FILE, input);
+        super(CALENDAR, input);
     }
 
     @Override
@@ -33,7 +33,8 @@ public class CalendarValidator extends TableValidator<Calendar> {
                 new Function<Map<String, String>, Calendar>() {
                     @Override
                     public Calendar apply(Map<String, String> row) {
-                        return new Calendar(row);
+                        CalendarValidator.super.row = row;
+                        return new Calendar(CalendarValidator.this);
                     }
                 });
     }

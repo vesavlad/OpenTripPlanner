@@ -14,18 +14,9 @@
 package org.opentripplanner.gtfs.model;
 
 import org.joda.time.LocalDate;
-import org.opentripplanner.gtfs.format.FeedFile;
-
-import java.util.Map;
-
-import static org.opentripplanner.gtfs.format.FeedFile.CALENDAR;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredBool;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredDate;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredString;
+import org.opentripplanner.gtfs.validator.table.CalendarValidator;
 
 public class Calendar {
-    final static public FeedFile FEED_FILE = CALENDAR;
-
     final public String service_id;
     final public boolean monday;
     final public boolean tuesday;
@@ -37,16 +28,16 @@ public class Calendar {
     final public LocalDate start_date;
     final public LocalDate end_date;
 
-    public Calendar(Map<String, String> row) {
-        service_id = requiredString(row, "service_id", FEED_FILE);
-        monday = requiredBool(row, "monday", FEED_FILE);
-        tuesday = requiredBool(row, "tuesday", FEED_FILE);
-        wednesday = requiredBool(row, "wednesday", FEED_FILE);
-        thursday = requiredBool(row, "thursday", FEED_FILE);
-        friday = requiredBool(row, "friday", FEED_FILE);
-        saturday = requiredBool(row, "saturday", FEED_FILE);
-        sunday = requiredBool(row, "sunday", FEED_FILE);
-        start_date = requiredDate(row, "start_date", FEED_FILE);
-        end_date = requiredDate(row, "end_date", FEED_FILE);
+    public Calendar(CalendarValidator validator) {
+        service_id = validator.requiredString("service_id");
+        monday = validator.requiredBool("monday");
+        tuesday = validator.requiredBool("tuesday");
+        wednesday = validator.requiredBool("wednesday");
+        thursday = validator.requiredBool("thursday");
+        friday = validator.requiredBool("friday");
+        saturday = validator.requiredBool("saturday");
+        sunday = validator.requiredBool("sunday");
+        start_date = validator.requiredDate("start_date");
+        end_date = validator.requiredDate("end_date");
     }
 }

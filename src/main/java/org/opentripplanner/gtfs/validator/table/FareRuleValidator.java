@@ -20,11 +20,11 @@ import org.opentripplanner.gtfs.model.FareRule;
 import java.util.Iterator;
 import java.util.Map;
 
-import static org.opentripplanner.gtfs.model.FareRule.FEED_FILE;
+import static org.opentripplanner.gtfs.format.FeedFile.FARE_RULES;
 
 public class FareRuleValidator extends TableValidator<FareRule> {
     public FareRuleValidator(Iterable<Map<String, String>> input) {
-        super(FEED_FILE, input);
+        super(FARE_RULES, input);
     }
 
     @Override
@@ -33,7 +33,8 @@ public class FareRuleValidator extends TableValidator<FareRule> {
                 new Function<Map<String, String>, FareRule>() {
                     @Override
                     public FareRule apply(Map<String, String> row) {
-                        return new FareRule(row);
+                        FareRuleValidator.super.row = row;
+                        return new FareRule(FareRuleValidator.this);
                     }
                 });
     }

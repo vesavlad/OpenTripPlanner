@@ -20,11 +20,11 @@ import org.opentripplanner.gtfs.model.Trip;
 import java.util.Iterator;
 import java.util.Map;
 
-import static org.opentripplanner.gtfs.model.Trip.FEED_FILE;
+import static org.opentripplanner.gtfs.format.FeedFile.TRIPS;
 
 public class TripValidator extends TableValidator<Trip> {
     public TripValidator(Iterable<Map<String, String>> input) {
-        super(FEED_FILE, input);
+        super(TRIPS, input);
     }
 
     @Override
@@ -33,7 +33,8 @@ public class TripValidator extends TableValidator<Trip> {
                 new Function<Map<String, String>, Trip>() {
                     @Override
                     public Trip apply(Map<String, String> row) {
-                        return new Trip(row);
+                        TripValidator.super.row = row;
+                        return new Trip(TripValidator.this);
                     }
                 });
     }

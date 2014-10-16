@@ -20,11 +20,11 @@ import org.opentripplanner.gtfs.model.Frequency;
 import java.util.Iterator;
 import java.util.Map;
 
-import static org.opentripplanner.gtfs.model.Frequency.FEED_FILE;
+import static org.opentripplanner.gtfs.format.FeedFile.FREQUENCIES;
 
 public class FrequencyValidator extends TableValidator<Frequency> {
     public FrequencyValidator(Iterable<Map<String, String>> input) {
-        super(FEED_FILE, input);
+        super(FREQUENCIES, input);
     }
 
     @Override
@@ -33,7 +33,8 @@ public class FrequencyValidator extends TableValidator<Frequency> {
                 new Function<Map<String, String>, Frequency>() {
                     @Override
                     public Frequency apply(Map<String, String> row) {
-                        return new Frequency(row);
+                        FrequencyValidator.super.row = row;
+                        return new Frequency(FrequencyValidator.this);
                     }
                 });
     }

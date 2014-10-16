@@ -14,27 +14,18 @@
 package org.opentripplanner.gtfs.model;
 
 import com.google.common.base.Optional;
-import org.opentripplanner.gtfs.format.FeedFile;
-
-import java.util.Map;
-
-import static org.opentripplanner.gtfs.format.FeedFile.TRANSFERS;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.optionalInt;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredIntOptionalValue;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredString;
+import org.opentripplanner.gtfs.validator.table.TransferValidator;
 
 public class Transfer {
-    final static public FeedFile FEED_FILE = TRANSFERS;
-
     final public String from_stop_id;
     final public String to_stop_id;
     final public Optional<Integer> transfer_type;
     final public Optional<Integer> min_transfer_time;
 
-    public Transfer(Map<String, String> row) {
-        from_stop_id = requiredString(row, "from_stop_id", FEED_FILE);
-        to_stop_id = requiredString(row, "to_stop_id", FEED_FILE);
-        transfer_type = requiredIntOptionalValue(row, "transfer_type", 0, 3, FEED_FILE);
-        min_transfer_time = optionalInt(row, "min_transfer_time", 0, Integer.MAX_VALUE, FEED_FILE);
+    public Transfer(TransferValidator validator) {
+        from_stop_id = validator.requiredString("from_stop_id");
+        to_stop_id = validator.requiredString("to_stop_id");
+        transfer_type = validator.requiredIntOptionalValue("transfer_type", 0, 3);
+        min_transfer_time = validator.optionalInt("min_transfer_time", 0, Integer.MAX_VALUE);
     }
 }

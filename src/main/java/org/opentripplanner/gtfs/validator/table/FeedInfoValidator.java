@@ -20,11 +20,11 @@ import org.opentripplanner.gtfs.model.FeedInfo;
 import java.util.Iterator;
 import java.util.Map;
 
-import static org.opentripplanner.gtfs.model.FeedInfo.FEED_FILE;
+import static org.opentripplanner.gtfs.format.FeedFile.FEED_INFO;
 
 public class FeedInfoValidator extends TableValidator<FeedInfo> {
     public FeedInfoValidator(Iterable<Map<String, String>> input) {
-        super(FEED_FILE, input);
+        super(FEED_INFO, input);
     }
 
     @Override
@@ -33,7 +33,8 @@ public class FeedInfoValidator extends TableValidator<FeedInfo> {
                 new Function<Map<String, String>, FeedInfo>() {
                     @Override
                     public FeedInfo apply(Map<String, String> row) {
-                        return new FeedInfo(row);
+                        FeedInfoValidator.super.row = row;
+                        return new FeedInfo(FeedInfoValidator.this);
                     }
                 });
     }

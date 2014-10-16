@@ -20,11 +20,11 @@ import org.opentripplanner.gtfs.model.Agency;
 import java.util.Iterator;
 import java.util.Map;
 
-import static org.opentripplanner.gtfs.model.Agency.FEED_FILE;
+import static org.opentripplanner.gtfs.format.FeedFile.AGENCY;
 
 public class AgencyValidator extends TableValidator<Agency> {
     public AgencyValidator(Iterable<Map<String, String>> input) {
-        super(FEED_FILE, input);
+        super(AGENCY, input);
     }
 
     @Override
@@ -33,7 +33,8 @@ public class AgencyValidator extends TableValidator<Agency> {
                 new Function<Map<String, String>, Agency>() {
                     @Override
                     public Agency apply(Map<String, String> row) {
-                        return new Agency(row);
+                        AgencyValidator.super.row = row;
+                        return new Agency(AgencyValidator.this);
                     }
                 });
     }

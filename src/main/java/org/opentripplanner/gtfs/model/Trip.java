@@ -14,19 +14,9 @@
 package org.opentripplanner.gtfs.model;
 
 import com.google.common.base.Optional;
-import org.opentripplanner.gtfs.format.FeedFile;
-
-import java.util.Map;
-
-import static org.opentripplanner.gtfs.format.FeedFile.TRIPS;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.optionalBool;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.optionalInt;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.optionalString;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredString;
+import org.opentripplanner.gtfs.validator.table.TripValidator;
 
 public class Trip {
-    final static public FeedFile FEED_FILE = TRIPS;
-
     final public String route_id;
     final public String service_id;
     final public String trip_id;
@@ -38,16 +28,16 @@ public class Trip {
     final public Optional<Integer> wheelchair_accessible;
     final public Optional<Integer> bikes_allowed;
 
-    public Trip(Map<String, String> row) {
-        route_id = requiredString(row, "route_id", FEED_FILE);
-        service_id = requiredString(row, "service_id", FEED_FILE);
-        trip_id = requiredString(row, "trip_id", FEED_FILE);
-        trip_headsign = optionalString(row, "trip_headsign", FEED_FILE);
-        trip_short_name = optionalString(row, "trip_short_name", FEED_FILE);
-        direction_id = optionalBool(row, "direction_id", FEED_FILE);
-        block_id = optionalString(row, "block_id", FEED_FILE);
-        shape_id = optionalString(row, "shape_id", FEED_FILE);
-        wheelchair_accessible = optionalInt(row, "wheelchair_accessible", 0, 2, FEED_FILE);
-        bikes_allowed = optionalInt(row, "bikes_allowed", 0, 2, FEED_FILE);
+    public Trip(TripValidator validator) {
+        route_id = validator.requiredString("route_id");
+        service_id = validator.requiredString("service_id");
+        trip_id = validator.requiredString("trip_id");
+        trip_headsign = validator.optionalString("trip_headsign");
+        trip_short_name = validator.optionalString("trip_short_name");
+        direction_id = validator.optionalBool("direction_id");
+        block_id = validator.optionalString("block_id");
+        shape_id = validator.optionalString("shape_id");
+        wheelchair_accessible = validator.optionalInt("wheelchair_accessible", 0, 2);
+        bikes_allowed = validator.optionalInt("bikes_allowed", 0, 2);
     }
 }

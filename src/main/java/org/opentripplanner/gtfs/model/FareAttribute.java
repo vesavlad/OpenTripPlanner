@@ -14,22 +14,11 @@
 package org.opentripplanner.gtfs.model;
 
 import com.google.common.base.Optional;
-import org.opentripplanner.gtfs.format.FeedFile;
+import org.opentripplanner.gtfs.validator.table.FareAttributeValidator;
 
 import java.util.Currency;
-import java.util.Map;
-
-import static org.opentripplanner.gtfs.format.FeedFile.FARE_ATTRIBUTES;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.optionalInt;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredCurrency;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredDouble;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredInt;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredIntOptionalValue;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredString;
 
 public class FareAttribute {
-    final static public FeedFile FEED_FILE = FARE_ATTRIBUTES;
-
     final public String fare_id;
     final public double price;
     final public Currency currency_type;
@@ -37,12 +26,12 @@ public class FareAttribute {
     final public Optional<Integer> transfers;
     final public Optional<Integer> transfer_duration;
 
-    public FareAttribute(Map<String, String> row) {
-        fare_id = requiredString(row, "fare_id", FEED_FILE);
-        price = requiredDouble(row, "price", 0, Double.MAX_VALUE, FEED_FILE);
-        currency_type = requiredCurrency(row, "currency_type", FEED_FILE);
-        payment_method = requiredInt(row, "payment_method", 0, 1, FEED_FILE);
-        transfers = requiredIntOptionalValue(row, "transfers", 0, 2, FEED_FILE);
-        transfer_duration = optionalInt(row, "transfer_duration", 0, Integer.MAX_VALUE, FEED_FILE);
+    public FareAttribute(FareAttributeValidator validator) {
+        fare_id = validator.requiredString("fare_id");
+        price = validator.requiredDouble("price", 0, Double.MAX_VALUE);
+        currency_type = validator.requiredCurrency("currency_type");
+        payment_method = validator.requiredInt("payment_method", 0, 1);
+        transfers = validator.requiredIntOptionalValue("transfers", 0, 2);
+        transfer_duration = validator.optionalInt("transfer_duration", 0, Integer.MAX_VALUE);
     }
 }

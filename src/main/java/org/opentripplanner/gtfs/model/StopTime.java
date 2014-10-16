@@ -14,21 +14,9 @@
 package org.opentripplanner.gtfs.model;
 
 import com.google.common.base.Optional;
-import org.opentripplanner.gtfs.format.FeedFile;
-
-import java.util.Map;
-
-import static org.opentripplanner.gtfs.format.FeedFile.STOP_TIMES;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.optionalDouble;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.optionalInt;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.optionalString;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredInt;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredString;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredTimeOfDay;
+import org.opentripplanner.gtfs.validator.table.StopTimeValidator;
 
 public class StopTime {
-    final static public FeedFile FEED_FILE = STOP_TIMES;
-
     final public String trip_id;
     final public int arrival_time;
     final public int departure_time;
@@ -39,15 +27,15 @@ public class StopTime {
     final public Optional<Integer> drop_off_type;
     final public Optional<Double> shape_dist_traveled;
 
-    public StopTime(Map<String, String> row) {
-        trip_id = requiredString(row, "trip_id", FEED_FILE);
-        arrival_time = requiredTimeOfDay(row, "arrival_time", FEED_FILE);
-        departure_time = requiredTimeOfDay(row, "departure_time", FEED_FILE);
-        stop_id = requiredString(row, "stop_id", FEED_FILE);
-        stop_sequence = requiredInt(row, "stop_sequence", 0, Integer.MAX_VALUE, FEED_FILE);
-        stop_headsign = optionalString(row, "stop_headsign", FEED_FILE);
-        pickup_type = optionalInt(row, "pickup_type", 0, 3, FEED_FILE);
-        drop_off_type = optionalInt(row, "drop_off_type", 0, 3, FEED_FILE);
-        shape_dist_traveled = optionalDouble(row, "shape_dist_traveled", FEED_FILE);
+    public StopTime(StopTimeValidator validator) {
+        trip_id = validator.requiredString("trip_id");
+        arrival_time = validator.requiredTimeOfDay("arrival_time");
+        departure_time = validator.requiredTimeOfDay("departure_time");
+        stop_id = validator.requiredString("stop_id");
+        stop_sequence = validator.requiredInt("stop_sequence", 0, Integer.MAX_VALUE);
+        stop_headsign = validator.optionalString("stop_headsign");
+        pickup_type = validator.optionalInt("pickup_type", 0, 3);
+        drop_off_type = validator.optionalInt("drop_off_type", 0, 3);
+        shape_dist_traveled = validator.optionalDouble("shape_dist_traveled");
     }
 }

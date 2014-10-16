@@ -14,23 +14,12 @@
 package org.opentripplanner.gtfs.model;
 
 import com.google.common.base.Optional;
-import org.opentripplanner.gtfs.format.FeedFile;
+import org.opentripplanner.gtfs.validator.table.StopValidator;
 
 import java.net.URL;
-import java.util.Map;
 import java.util.TimeZone;
 
-import static org.opentripplanner.gtfs.format.FeedFile.STOPS;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.optionalInt;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.optionalString;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.optionalTz;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.optionalUrl;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredDouble;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredString;
-
 public class Stop {
-    final static public FeedFile FEED_FILE = STOPS;
-
     final public String stop_id;
     final public Optional<String> stop_code;
     final public String stop_name;
@@ -44,18 +33,18 @@ public class Stop {
     final public Optional<TimeZone> stop_timezone;
     final public Optional<Integer> wheelchair_boarding;
 
-    public Stop(Map<String, String> row) {
-        stop_id = requiredString(row, "stop_id", FEED_FILE);
-        stop_code = optionalString(row, "stop_code", FEED_FILE);
-        stop_name = requiredString(row, "stop_name", FEED_FILE);
-        stop_desc = optionalString(row, "stop_desc", FEED_FILE);
-        stop_lat = requiredDouble(row, "stop_lat", -90, 90, FEED_FILE);
-        stop_lon = requiredDouble(row, "stop_lon", -180, 180, FEED_FILE);
-        zone_id = optionalString(row, "zone_id", FEED_FILE);
-        stop_url = optionalUrl(row, "stop_url", FEED_FILE);
-        location_type = optionalInt(row, "location_type", 0, 1, FEED_FILE);
-        parent_station = optionalString(row, "parent_station", FEED_FILE);
-        stop_timezone = optionalTz(row, "stop_timezone", FEED_FILE);
-        wheelchair_boarding = optionalInt(row, "wheelchair_boarding", 0, 2, FEED_FILE);
+    public Stop(StopValidator validator) {
+        stop_id = validator.requiredString("stop_id");
+        stop_code = validator.optionalString("stop_code");
+        stop_name = validator.requiredString("stop_name");
+        stop_desc = validator.optionalString("stop_desc");
+        stop_lat = validator.requiredDouble("stop_lat", -90, 90);
+        stop_lon = validator.requiredDouble("stop_lon", -180, 180);
+        zone_id = validator.optionalString("zone_id");
+        stop_url = validator.optionalUrl("stop_url");
+        location_type = validator.optionalInt("location_type", 0, 1);
+        parent_station = validator.optionalString("parent_station");
+        stop_timezone = validator.optionalTz("stop_timezone");
+        wheelchair_boarding = validator.optionalInt("wheelchair_boarding", 0, 2);
     }
 }

@@ -14,30 +14,20 @@
 package org.opentripplanner.gtfs.model;
 
 import com.google.common.base.Optional;
-import org.opentripplanner.gtfs.format.FeedFile;
-
-import java.util.Map;
-
-import static org.opentripplanner.gtfs.format.FeedFile.SHAPES;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.optionalDouble;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredDouble;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredInt;
-import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredString;
+import org.opentripplanner.gtfs.validator.table.ShapeValidator;
 
 public class Shape {
-    final static public FeedFile FEED_FILE = SHAPES;
-
     final public String shape_id;
     final public double shape_pt_lat;
     final public double shape_pt_lon;
     final public int shape_pt_sequence;
     final public Optional<Double> shape_dist_traveled;
 
-    public Shape(Map<String, String> row) {
-        shape_id = requiredString(row, "shape_id", FEED_FILE);
-        shape_pt_lat = requiredDouble(row, "shape_pt_lat", -90, 90, FEED_FILE);
-        shape_pt_lon = requiredDouble(row, "shape_pt_lon", -180, 180, FEED_FILE);
-        shape_pt_sequence = requiredInt(row, "shape_pt_sequence", 0, Integer.MAX_VALUE, FEED_FILE);
-        shape_dist_traveled = optionalDouble(row, "shape_dist_traveled", FEED_FILE);
+    public Shape(ShapeValidator validator) {
+        shape_id = validator.requiredString("shape_id");
+        shape_pt_lat = validator.requiredDouble("shape_pt_lat", -90, 90);
+        shape_pt_lon = validator.requiredDouble("shape_pt_lon", -180, 180);
+        shape_pt_sequence = validator.requiredInt("shape_pt_sequence", 0, Integer.MAX_VALUE);
+        shape_dist_traveled = validator.optionalDouble("shape_dist_traveled");
     }
 }
