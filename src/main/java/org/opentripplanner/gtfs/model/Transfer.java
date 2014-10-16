@@ -19,9 +19,9 @@ import org.opentripplanner.gtfs.format.FeedFile;
 import java.util.Map;
 
 import static org.opentripplanner.gtfs.format.FeedFile.TRANSFERS;
-import static org.opentripplanner.gtfs.validator.FeedValidator.optionalInt;
-import static org.opentripplanner.gtfs.validator.FeedValidator.requiredIntOptionalValue;
-import static org.opentripplanner.gtfs.validator.FeedValidator.requiredString;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.optionalInt;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredIntOptionalValue;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredString;
 
 public class Transfer {
     final static public FeedFile FEED_FILE = TRANSFERS;

@@ -21,12 +21,12 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import static org.opentripplanner.gtfs.format.FeedFile.STOPS;
-import static org.opentripplanner.gtfs.validator.FeedValidator.optionalInt;
-import static org.opentripplanner.gtfs.validator.FeedValidator.optionalString;
-import static org.opentripplanner.gtfs.validator.FeedValidator.optionalTz;
-import static org.opentripplanner.gtfs.validator.FeedValidator.optionalUrl;
-import static org.opentripplanner.gtfs.validator.FeedValidator.requiredDouble;
-import static org.opentripplanner.gtfs.validator.FeedValidator.requiredString;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.optionalInt;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.optionalString;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.optionalTz;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.optionalUrl;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredDouble;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredString;
 
 public class Stop {
     final static public FeedFile FEED_FILE = STOPS;

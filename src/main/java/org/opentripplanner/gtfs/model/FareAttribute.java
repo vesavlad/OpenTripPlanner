@@ -20,12 +20,12 @@ import java.util.Currency;
 import java.util.Map;
 
 import static org.opentripplanner.gtfs.format.FeedFile.FARE_ATTRIBUTES;
-import static org.opentripplanner.gtfs.validator.FeedValidator.optionalInt;
-import static org.opentripplanner.gtfs.validator.FeedValidator.requiredCurrency;
-import static org.opentripplanner.gtfs.validator.FeedValidator.requiredDouble;
-import static org.opentripplanner.gtfs.validator.FeedValidator.requiredInt;
-import static org.opentripplanner.gtfs.validator.FeedValidator.requiredIntOptionalValue;
-import static org.opentripplanner.gtfs.validator.FeedValidator.requiredString;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.optionalInt;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredCurrency;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredDouble;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredInt;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredIntOptionalValue;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredString;
 
 public class FareAttribute {
     final static public FeedFile FEED_FILE = FARE_ATTRIBUTES;

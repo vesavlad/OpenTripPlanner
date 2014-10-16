@@ -22,11 +22,11 @@ import java.util.Locale;
 import java.util.Map;
 
 import static org.opentripplanner.gtfs.format.FeedFile.FEED_INFO;
-import static org.opentripplanner.gtfs.validator.FeedValidator.optionalDate;
-import static org.opentripplanner.gtfs.validator.FeedValidator.optionalString;
-import static org.opentripplanner.gtfs.validator.FeedValidator.requiredLang;
-import static org.opentripplanner.gtfs.validator.FeedValidator.requiredString;
-import static org.opentripplanner.gtfs.validator.FeedValidator.requiredUrl;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.optionalDate;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.optionalString;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredLang;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredString;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredUrl;
 
 public class FeedInfo {
     final static public FeedFile FEED_FILE = FEED_INFO;

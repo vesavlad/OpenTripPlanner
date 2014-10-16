@@ -19,9 +19,9 @@ import org.opentripplanner.gtfs.format.FeedFile;
 import java.util.Map;
 
 import static org.opentripplanner.gtfs.format.FeedFile.CALENDAR;
-import static org.opentripplanner.gtfs.validator.FeedValidator.requiredBool;
-import static org.opentripplanner.gtfs.validator.FeedValidator.requiredDate;
-import static org.opentripplanner.gtfs.validator.FeedValidator.requiredString;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredBool;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredDate;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredString;
 
 public class Calendar {
     final static public FeedFile FEED_FILE = CALENDAR;

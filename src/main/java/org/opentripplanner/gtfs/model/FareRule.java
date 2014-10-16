@@ -19,8 +19,8 @@ import org.opentripplanner.gtfs.format.FeedFile;
 import java.util.Map;
 
 import static org.opentripplanner.gtfs.format.FeedFile.FARE_RULES;
-import static org.opentripplanner.gtfs.validator.FeedValidator.optionalString;
-import static org.opentripplanner.gtfs.validator.FeedValidator.requiredString;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.optionalString;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredString;
 
 public class FareRule {
     final static public FeedFile FEED_FILE = FARE_RULES;

@@ -11,15 +11,40 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-package org.opentripplanner.gtfs.validator;
+package org.opentripplanner.gtfs.validator.feed;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import com.google.common.collect.Iterables;
 import org.joda.time.LocalDate;
 import org.opentripplanner.gtfs.format.Feed;
 import org.opentripplanner.gtfs.format.FeedFile;
+import org.opentripplanner.gtfs.model.Agency;
+import org.opentripplanner.gtfs.model.Calendar;
+import org.opentripplanner.gtfs.model.CalendarDate;
+import org.opentripplanner.gtfs.model.FareAttribute;
+import org.opentripplanner.gtfs.model.FareRule;
+import org.opentripplanner.gtfs.model.FeedInfo;
+import org.opentripplanner.gtfs.model.Frequency;
+import org.opentripplanner.gtfs.model.Route;
+import org.opentripplanner.gtfs.model.Shape;
+import org.opentripplanner.gtfs.model.Stop;
+import org.opentripplanner.gtfs.model.StopTime;
+import org.opentripplanner.gtfs.model.Transfer;
+import org.opentripplanner.gtfs.model.Trip;
+import org.opentripplanner.gtfs.validator.ValidationException;
+import org.opentripplanner.gtfs.validator.table.AgencyValidator;
+import org.opentripplanner.gtfs.validator.table.CalendarValidator;
+import org.opentripplanner.gtfs.validator.table.CalendarDateValidator;
+import org.opentripplanner.gtfs.validator.table.FareAttributeValidator;
+import org.opentripplanner.gtfs.validator.table.FareRuleValidator;
+import org.opentripplanner.gtfs.validator.table.FeedInfoValidator;
+import org.opentripplanner.gtfs.validator.table.FrequencyValidator;
+import org.opentripplanner.gtfs.validator.table.RouteValidator;
+import org.opentripplanner.gtfs.validator.table.ShapeValidator;
+import org.opentripplanner.gtfs.validator.table.StopTimeValidator;
+import org.opentripplanner.gtfs.validator.table.StopValidator;
+import org.opentripplanner.gtfs.validator.table.TransferValidator;
+import org.opentripplanner.gtfs.validator.table.TripValidator;
 
 import java.net.URL;
 import java.util.Currency;
@@ -44,34 +69,34 @@ import static org.opentripplanner.gtfs.format.FeedFile.TRANSFERS;
 import static org.opentripplanner.gtfs.format.FeedFile.TRIPS;
 
 public class FeedValidator {
-    final public Iterable<Map<String, String>> agency;
-    final public Iterable<Map<String, String>> stops;
-    final public Iterable<Map<String, String>> routes;
-    final public Iterable<Map<String, String>> trips;
-    final public Iterable<Map<String, String>> stop_times;
-    final public Optional<Iterable<Map<String, String>>> calendar;
-    final public Optional<Iterable<Map<String, String>>> calendar_dates;
-    final public Optional<Iterable<Map<String, String>>> fare_attributes;
-    final public Optional<Iterable<Map<String, String>>> fare_rules;
-    final public Optional<Iterable<Map<String, String>>> shapes;
-    final public Optional<Iterable<Map<String, String>>> frequencies;
-    final public Optional<Iterable<Map<String, String>>> transfers;
-    final public Optional<Iterable<Map<String, String>>> feed_info;
+    final public Iterable<Agency> agency;
+    final public Iterable<Stop> stops;
+    final public Iterable<Route> routes;
+    final public Iterable<Trip> trips;
+    final public Iterable<StopTime> stop_times;
+    final public Optional<Iterable<Calendar>> calendar;
+    final public Optional<Iterable<CalendarDate>> calendar_dates;
+    final public Optional<Iterable<FareAttribute>> fare_attributes;
+    final public Optional<Iterable<FareRule>> fare_rules;
+    final public Optional<Iterable<Shape>> shapes;
+    final public Optional<Iterable<Frequency>> frequencies;
+    final public Optional<Iterable<Transfer>> transfers;
+    final public Optional<Iterable<FeedInfo>> feed_info;
 
     public FeedValidator(Feed feed) {
-        agency = required(feed, AGENCY);
-        stops = required(feed, STOPS);
-        routes = required(feed, ROUTES);
-        trips = required(feed, TRIPS);
-        stop_times = required(feed, STOP_TIMES);
-        calendar = optional(feed, CALENDAR);
-        calendar_dates = optional(feed, CALENDAR_DATES);
-        fare_attributes = optional(feed, FARE_ATTRIBUTES);
-        fare_rules = optional(feed, FARE_RULES);
-        shapes = optional(feed, SHAPES);
-        frequencies = optional(feed, FREQUENCIES);
-        transfers = optional(feed, TRANSFERS);
-        feed_info = optional(feed, FEED_INFO);
+        agency = agency(feed);
+        stops = stops(feed);
+        routes = routes(feed);
+        trips = trips(feed);
+        stop_times = stop_times(feed);
+        calendar = calendar(feed);
+        calendar_dates = calendar_dates(feed);
+        fare_attributes = fare_attributes(feed);
+        fare_rules = fare_rules(feed);
+        shapes = shapes(feed);
+        frequencies = frequencies(feed);
+        transfers = transfers(feed);
+        feed_info = feed_info(feed);
 
         if (!calendar.isPresent() && !calendar_dates.isPresent()) {
             throw new ValidationException(CALENDAR, "omitted, but that requires " + CALENDAR_DATES);
@@ -412,37 +437,107 @@ public class FeedValidator {
         if (iterable == null) {
             throw new ValidationException(feedFile, "required feed file not found");
         } else {
-            return addValidator(feedFile, iterable);
+            return iterable;
         }
     }
 
-    private static Optional<Iterable<Map<String, String>>> optional(Feed feed, FeedFile feedFile) {
-        Iterable<Map<String, String>> iterable = feed.get(feedFile.toString());
+    private static Optional<Iterable<FeedInfo>> feed_info(Feed feed) {
+        Iterable<Map<String, String>> iterable = feed.get(FEED_INFO.toString());
 
         if (iterable == null) {
             return Optional.absent();
         } else {
-            return Optional.of(addValidator(feedFile, iterable));
+            return Optional.<Iterable<FeedInfo>>of(new FeedInfoValidator(iterable));
         }
     }
 
-    private static Iterable<Map<String, String>> addValidator(final FeedFile feedFile,
-                                                              Iterable<Map<String, String>> input) {
-        return Iterables.transform(input, new Function<Map<String, String>, Map<String, String>>() {
-            private int line = 1;
+    private static Optional<Iterable<Transfer>> transfers(Feed feed) {
+        Iterable<Map<String, String>> iterable = feed.get(TRANSFERS.toString());
 
-            @Override
-            public Map<String, String> apply(Map<String, String> input) {
-                line++;
+        if (iterable == null) {
+            return Optional.absent();
+        } else {
+            return Optional.<Iterable<Transfer>>of(new TransferValidator(iterable));
+        }
+    }
 
-                if (input.keySet().size() == input.values().size()) {
-                    return input;
-                } else {
-                    throw new ValidationException(feedFile, String.format(
-                            "incorrect column count (expected %d cells, found %d cells) on line %d",
-                            input.keySet().size(), input.values().size(), line));
-                }
-            }
-        });
+    private static Optional<Iterable<Frequency>> frequencies(Feed feed) {
+        Iterable<Map<String, String>> iterable = feed.get(FREQUENCIES.toString());
+
+        if (iterable == null) {
+            return Optional.absent();
+        } else {
+            return Optional.<Iterable<Frequency>>of(new FrequencyValidator(iterable));
+        }
+    }
+
+    private static Optional<Iterable<Shape>> shapes(Feed feed) {
+        Iterable<Map<String, String>> iterable = feed.get(SHAPES.toString());
+
+        if (iterable == null) {
+            return Optional.absent();
+        } else {
+            return Optional.<Iterable<Shape>>of(new ShapeValidator(iterable));
+        }
+    }
+
+    private static Optional<Iterable<FareRule>> fare_rules(Feed feed) {
+        Iterable<Map<String, String>> iterable = feed.get(FARE_RULES.toString());
+
+        if (iterable == null) {
+            return Optional.absent();
+        } else {
+            return Optional.<Iterable<FareRule>>of(new FareRuleValidator(iterable));
+        }
+    }
+
+    private static Optional<Iterable<FareAttribute>> fare_attributes(Feed feed) {
+        Iterable<Map<String, String>> iterable = feed.get(FARE_ATTRIBUTES.toString());
+
+        if (iterable == null) {
+            return Optional.absent();
+        } else {
+            return Optional.<Iterable<FareAttribute>>of(new FareAttributeValidator(iterable));
+        }
+    }
+
+    private static Optional<Iterable<CalendarDate>> calendar_dates(Feed feed) {
+        Iterable<Map<String, String>> iterable = feed.get(CALENDAR_DATES.toString());
+
+        if (iterable == null) {
+            return Optional.absent();
+        } else {
+            return Optional.<Iterable<CalendarDate>>of(new CalendarDateValidator(iterable));
+        }
+    }
+
+    private static Optional<Iterable<Calendar>> calendar(Feed feed) {
+        Iterable<Map<String, String>> iterable = feed.get(CALENDAR.toString());
+
+        if (iterable == null) {
+            return Optional.absent();
+        } else {
+            return Optional.<Iterable<Calendar>>of(new CalendarValidator(iterable));
+        }
+    }
+
+    private static Iterable<StopTime> stop_times(Feed feed) {
+        return new StopTimeValidator(required(feed, STOP_TIMES));
+    }
+
+    private static Iterable<Trip> trips(Feed feed) {
+        return new TripValidator(required(feed, TRIPS));
+    }
+
+    private static Iterable<Route> routes(Feed feed) {
+        return new RouteValidator(required(feed, ROUTES));
+    }
+
+    private static Iterable<Stop> stops(Feed feed) {
+        return new StopValidator(required(feed, STOPS));
+    }
+
+    private static Iterable<Agency> agency(Feed feed) {
+        return new AgencyValidator(required(feed, AGENCY));
     }
 }

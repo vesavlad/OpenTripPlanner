@@ -14,9 +14,7 @@
 package org.opentripplanner.gtfs;
 
 import com.csvreader.CsvWriter;
-import com.google.common.base.Function;
 import com.google.common.base.Strings;
-import com.google.common.collect.Iterables;
 import org.joda.time.LocalDate;
 import org.opentripplanner.gtfs.format.Feed;
 import org.opentripplanner.gtfs.model.Agency;
@@ -28,9 +26,10 @@ import org.opentripplanner.gtfs.model.Stop;
 import org.opentripplanner.gtfs.model.StopTime;
 import org.opentripplanner.gtfs.model.Transfer;
 import org.opentripplanner.gtfs.model.Trip;
-import org.opentripplanner.gtfs.validator.FeedValidator;
+import org.opentripplanner.gtfs.validator.feed.FeedValidator;
 
 import java.nio.charset.Charset;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -52,17 +51,10 @@ public class RoundTrip {
 
             {
                 CsvWriter csvWriter = new CsvWriter("agency.txt", ',', UTF8);
-                Iterable<Agency> iterable = Iterables.transform(feedValidator.agency,
-                        new Function<Map<String, String>, Agency>() {
-                    @Override
-                    public Agency apply(Map<String, String> row) {
-                        return new Agency(row);
-                    }
-                });
                 try {
                     csvWriter.writeRecord(new String[]{"agency_id", "agency_name", "agency_url",
                             "agency_timezone", "agency_phone"});
-                    for (Agency agency : iterable) {
+                    for (Agency agency : feedValidator.agency) {
                         final String fields[] = new String[5];
                         fields[0] = agency.agency_id.get();
                         fields[1] = agency.agency_name;
@@ -86,8 +78,9 @@ public class RoundTrip {
                     csvWriter.writeRecord(new String[]{"stop_id", "stop_code", "stop_name",
                             "stop_lat", "stop_lon", "location_type", "parent_station",
                             "stop_timezone", "wheelchair_boarding", "platform_code", "zone_id"});
-                    for (Map<String, String> row : feedValidator.stops) {
-                        Stop stop = new Stop(row);
+                    Iterator<Map<String, String>> iterator = feed.get("stops.txt").iterator();
+                    for (Stop stop : feedValidator.stops) {
+                        Map<String, String> row = iterator.next();
                         final String fields[] = new String[11];
                         fields[0] = stop.stop_id;
                         fields[1] = stop.stop_code.get();
@@ -120,8 +113,9 @@ public class RoundTrip {
                     csvWriter.writeRecord(new String[]{"route_id", "agency_id", "route_short_name",
                             "route_long_name", "route_desc", "route_type", "route_color",
                             "route_text_color", "route_url"});
-                    for (Map<String, String> row : feedValidator.routes) {
-                        Route route = new Route(row);
+                    Iterator<Map<String, String>> iterator = feed.get("routes.txt").iterator();
+                    for (Route route : feedValidator.routes) {
+                        Map<String, String> row = iterator.next();
                         final String fields[] = new String[9];
                         fields[0] = route.route_id;
                         fields[1] = route.agency_id.get();
@@ -153,8 +147,9 @@ public class RoundTrip {
                             "realtime_trip_id", "trip_headsign", "trip_short_name",
                             "trip_long_name", "direction_id", "block_id", "shape_id",
                             "wheelchair_accessible" ,"bikes_allowed"});
-                    for (Map<String, String> row : feedValidator.trips) {
-                        Trip trip = new Trip(row);
+                    Iterator<Map<String, String>> iterator = feed.get("trips.txt").iterator();
+                    for (Trip trip : feedValidator.trips) {
+                        Map<String, String> row = iterator.next();
                         final String fields[] = new String[12];
                         fields[0] = trip.route_id;
                         fields[1] = trip.service_id;
@@ -188,8 +183,9 @@ public class RoundTrip {
                             "stop_headsign", "arrival_time", "departure_time", "pickup_type",
                             "drop_off_type", "timepoint", "shape_dist_traveled",
                             "fare_units_traveled"});
-                    for (Map<String, String> row : feedValidator.stop_times) {
-                        StopTime stopTime = new StopTime(row);
+                    Iterator<Map<String, String>> iterator = feed.get("stop_times.txt").iterator();
+                    for (StopTime stopTime : feedValidator.stop_times) {
+                        Map<String, String> row = iterator.next();
                         final String fields[] = new String[11];
                         fields[0] = stopTime.trip_id;
                         fields[1] = String.valueOf(stopTime.stop_sequence);
@@ -216,17 +212,9 @@ public class RoundTrip {
 
             if (feedValidator.calendar_dates.isPresent()) {
                 CsvWriter csvWriter = new CsvWriter("calendar_dates.txt", ',', UTF8);
-                Iterable<CalendarDate> iterable = Iterables.transform(
-                        feedValidator.calendar_dates.get(), new Function<Map<String, String>,
-                                CalendarDate>() {
-                            @Override
-                            public CalendarDate apply(Map<String, String> row) {
-                                return new CalendarDate(row);
-                            }
-                        });
                 try {
                     csvWriter.writeRecord(new String[]{"service_id", "date", "exception_type"});
-                    for (CalendarDate calendarDate : iterable) {
+                    for (CalendarDate calendarDate : feedValidator.calendar_dates.get()) {
                         final String fields[] = new String[3];
                         fields[0] = calendarDate.service_id;
                         fields[1] = date(calendarDate.date);
@@ -246,17 +234,10 @@ public class RoundTrip {
 
             if (feedValidator.shapes.isPresent()) {
                 CsvWriter csvWriter = new CsvWriter("shapes.txt", ',', UTF8);
-                Iterable<Shape> iterable = Iterables.transform(
-                        feedValidator.shapes.get(), new Function<Map<String, String>, Shape>() {
-                            @Override
-                            public Shape apply(Map<String, String> row) {
-                                return new Shape(row);
-                            }
-                        });
                 try {
                     csvWriter.writeRecord(new String[]{"shape_id", "shape_pt_sequence",
                             "shape_pt_lat", "shape_pt_lon", "shape_dist_traveled"});
-                    for (Shape shape : iterable) {
+                    for (Shape shape : feedValidator.shapes.get()) {
                         final String fields[] = new String[5];
                         fields[0] = shape.shape_id;
                         fields[1] = String.valueOf(shape.shape_pt_sequence);
@@ -287,8 +268,9 @@ public class RoundTrip {
                     csvWriter.writeRecord(new String[]{"from_stop_id", "to_stop_id",
                             "from_route_id", "to_route_id", "from_trip_id", "to_trip_id",
                             "transfer_type"});
-                    for (Map<String, String> row : feedValidator.transfers.get()) {
-                        Transfer transfer = new Transfer(row);
+                    Iterator<Map<String, String>> iterator = feed.get("transfers.txt").iterator();
+                    for (Transfer transfer : feedValidator.transfers.get()) {
+                        Map<String, String> row = iterator.next();
                         final String fields[] = new String[7];
                         fields[0] = transfer.from_stop_id;
                         fields[1] = transfer.to_stop_id;
@@ -316,8 +298,9 @@ public class RoundTrip {
                     csvWriter.writeRecord(new String[]{"feed_publisher_name",
                             "feed_id", "feed_publisher_url", "feed_lang", "feed_start_date",
                             "feed_end_date", "feed_version"});
-                    for (Map<String, String> row : feedValidator.feed_info.get()) {
-                        FeedInfo feedInfo = new FeedInfo(row);
+                    Iterator<Map<String, String>> iterator = feed.get("feed_info.txt").iterator();
+                    for (FeedInfo feedInfo : feedValidator.feed_info.get()) {
+                        Map<String, String> row = iterator.next();
                         final String fields[] = new String[7];
                         fields[0] = feedInfo.feed_publisher_name;
                         fields[1] = row.get("feed_id");

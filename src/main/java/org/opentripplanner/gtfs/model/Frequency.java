@@ -19,10 +19,10 @@ import org.opentripplanner.gtfs.format.FeedFile;
 import java.util.Map;
 
 import static org.opentripplanner.gtfs.format.FeedFile.FREQUENCIES;
-import static org.opentripplanner.gtfs.validator.FeedValidator.optionalInt;
-import static org.opentripplanner.gtfs.validator.FeedValidator.requiredInt;
-import static org.opentripplanner.gtfs.validator.FeedValidator.requiredString;
-import static org.opentripplanner.gtfs.validator.FeedValidator.requiredTimeOfDay;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.optionalInt;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredInt;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredString;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredTimeOfDay;
 
 public class Frequency {
     final static public FeedFile FEED_FILE = FREQUENCIES;

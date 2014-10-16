@@ -20,11 +20,11 @@ import java.net.URL;
 import java.util.Map;
 
 import static org.opentripplanner.gtfs.format.FeedFile.ROUTES;
-import static org.opentripplanner.gtfs.validator.FeedValidator.optionalColor;
-import static org.opentripplanner.gtfs.validator.FeedValidator.optionalString;
-import static org.opentripplanner.gtfs.validator.FeedValidator.optionalUrl;
-import static org.opentripplanner.gtfs.validator.FeedValidator.requiredInt;
-import static org.opentripplanner.gtfs.validator.FeedValidator.requiredString;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.optionalColor;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.optionalString;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.optionalUrl;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredInt;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredString;
 
 public class Route {
     final static public FeedFile FEED_FILE = ROUTES;

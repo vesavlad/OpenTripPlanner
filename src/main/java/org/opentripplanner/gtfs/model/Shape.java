@@ -19,10 +19,10 @@ import org.opentripplanner.gtfs.format.FeedFile;
 import java.util.Map;
 
 import static org.opentripplanner.gtfs.format.FeedFile.SHAPES;
-import static org.opentripplanner.gtfs.validator.FeedValidator.optionalDouble;
-import static org.opentripplanner.gtfs.validator.FeedValidator.requiredDouble;
-import static org.opentripplanner.gtfs.validator.FeedValidator.requiredInt;
-import static org.opentripplanner.gtfs.validator.FeedValidator.requiredString;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.optionalDouble;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredDouble;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredInt;
+import static org.opentripplanner.gtfs.validator.feed.FeedValidator.requiredString;
 
 public class Shape {
     final static public FeedFile FEED_FILE = SHAPES;
