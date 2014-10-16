@@ -34,6 +34,7 @@ abstract class TableValidator<T> implements Iterable<T> {
     final private FeedFile feedFile;
     final Iterable<Map<String, String>> maps;
     private int line = 1;
+    private String column;
     Map<String, String> row;
 
     TableValidator(FeedFile feedFile, Iterable<Map<String, String>> input) {
@@ -55,6 +56,7 @@ abstract class TableValidator<T> implements Iterable<T> {
     }
 
     public String requiredString(String column) {
+        this.column = column;
         String string = row.get(column);
 
         if (string == null) {
@@ -65,6 +67,7 @@ abstract class TableValidator<T> implements Iterable<T> {
     }
 
     public Optional<String> optionalString(String column) {
+        this.column = column;
         String string = row.get(column);
 
         if (string == null) {
@@ -75,10 +78,12 @@ abstract class TableValidator<T> implements Iterable<T> {
     }
 
     public URL requiredUrl(String column) {
+        this.column = column;
         return stringToUrl(requiredString(column));
     }
 
     public Optional<URL> optionalUrl(String column) {
+        this.column = column;
         String string = row.get(column);
 
         if (Strings.isNullOrEmpty(string)) {
@@ -89,10 +94,12 @@ abstract class TableValidator<T> implements Iterable<T> {
     }
 
     public TimeZone requiredTz(String column) {
+        this.column = column;
         return stringToTz(requiredString(column));
     }
 
     public Optional<TimeZone> optionalTz(String column) {
+        this.column = column;
         String string = row.get(column);
 
         if (Strings.isNullOrEmpty(string)) {
@@ -103,10 +110,12 @@ abstract class TableValidator<T> implements Iterable<T> {
     }
 
     public Locale requiredLang(String column) {
+        this.column = column;
         return stringToLang(requiredString(column));
     }
 
     public Optional<Locale> optionalLang(String column) {
+        this.column = column;
         String string = row.get(column);
 
         if (string == null) {
@@ -117,10 +126,12 @@ abstract class TableValidator<T> implements Iterable<T> {
     }
 
     public double requiredDouble(String column, double min, double max) {
+        this.column = column;
         return stringToDouble(requiredString(column), min, max);
     }
 
     public Optional<Double> optionalDouble(String column) {
+        this.column = column;
         String string = row.get(column);
 
         if (Strings.isNullOrEmpty(string)) {
@@ -131,10 +142,12 @@ abstract class TableValidator<T> implements Iterable<T> {
     }
 
     public int requiredInt(String column, int min, int max) {
+        this.column = column;
         return stringToInt(requiredString(column), min, max);
     }
 
     public Optional<Integer> requiredIntOptionalValue(String column, int min, int max) {
+        this.column = column;
         String string = requiredString(column);
 
         if (string.equals("")) {
@@ -145,6 +158,7 @@ abstract class TableValidator<T> implements Iterable<T> {
     }
 
     public Optional<Integer> optionalInt(String column, int min, int max) {
+        this.column = column;
         String string = row.get(column);
 
         if (Strings.isNullOrEmpty(string)) {
@@ -155,6 +169,7 @@ abstract class TableValidator<T> implements Iterable<T> {
     }
 
     public int optionalColor(String column, int defaultColor) {
+        this.column = column;
         String string = row.get(column);
 
         if (Strings.isNullOrEmpty(string)) {
@@ -165,10 +180,12 @@ abstract class TableValidator<T> implements Iterable<T> {
     }
 
     public boolean requiredBool(String column) {
+        this.column = column;
         return stringBinToBool(requiredString(column));
     }
 
     public Optional<Boolean> optionalBool(String column) {
+        this.column = column;
         String string = row.get(column);
 
         if (string == null) {
@@ -179,14 +196,17 @@ abstract class TableValidator<T> implements Iterable<T> {
     }
 
     public int requiredTimeOfDay(String column) {
+        this.column = column;
         return stringToTimeOfDay(requiredString(column));
     }
 
     public LocalDate requiredDate(String column) {
+        this.column = column;
         return stringToDate(requiredString(column));
     }
 
     public Optional<LocalDate> optionalDate(String column) {
+        this.column = column;
         String string = row.get(column);
 
         if (string == null) {
@@ -197,6 +217,7 @@ abstract class TableValidator<T> implements Iterable<T> {
     }
 
     public Currency requiredCurrency(String column) {
+        this.column = column;
         return stringToCurrency(requiredString(column));
     }
 
@@ -204,7 +225,7 @@ abstract class TableValidator<T> implements Iterable<T> {
         try {
             return new URL(string);
         } catch (Exception e) {
-            throw new ValidationException(feedFile, line, e);
+            throw new ValidationException(feedFile, line, column, e);
         }
     }
 
@@ -212,7 +233,7 @@ abstract class TableValidator<T> implements Iterable<T> {
         try {
             return TimeZone.getTimeZone(string);
         } catch (Exception e) {
-            throw new ValidationException(feedFile, line, e);
+            throw new ValidationException(feedFile, line, column, e);
         }
     }
 
@@ -220,7 +241,7 @@ abstract class TableValidator<T> implements Iterable<T> {
         try {
             return new Locale(string);
         } catch (Exception e) {
-            throw new ValidationException(feedFile, line, e);
+            throw new ValidationException(feedFile, line, column, e);
         }
     }
 
@@ -230,19 +251,19 @@ abstract class TableValidator<T> implements Iterable<T> {
         try {
             value = Double.parseDouble(string);
         } catch (Exception e) {
-            throw new ValidationException(feedFile, line, e);
+            throw new ValidationException(feedFile, line, column, e);
         }
 
         if (value >= min) {
             if (value <= max) {
                 return value;
             } else {
-                throw new ValidationException(feedFile, line, String.format(
+                throw new ValidationException(feedFile, line, column, String.format(
                         "double value out of range (was %f, must be no more than %f)",
                         value, max));
             }
         } else {
-            throw new ValidationException(feedFile, line, String.format(
+            throw new ValidationException(feedFile, line, column, String.format(
                     "double value out of range (was %f, must be at least %f)",
                     value, min));
         }
@@ -254,19 +275,19 @@ abstract class TableValidator<T> implements Iterable<T> {
         try {
             value = Integer.parseInt(string);
         } catch (Exception e) {
-            throw new ValidationException(feedFile, line, e);
+            throw new ValidationException(feedFile, line, column, e);
         }
 
         if (value >= min) {
             if (value <= max) {
                 return value;
             } else {
-                throw new ValidationException(feedFile, line, String.format(
+                throw new ValidationException(feedFile, line, column, String.format(
                         "integer value out of range (was %d, must be no more than %d)",
                         value, max));
             }
         } else {
-            throw new ValidationException(feedFile, line, String.format(
+            throw new ValidationException(feedFile, line, column, String.format(
                     "integer value out of range (was %d, must be at least %d)",
                     value, min));
         }
@@ -278,19 +299,19 @@ abstract class TableValidator<T> implements Iterable<T> {
         try {
             value = Integer.parseInt(string, 16);
         } catch (Exception e) {
-            throw new ValidationException(feedFile, line, e);
+            throw new ValidationException(feedFile, line, column, e);
         }
 
         if (value >= min) {
             if (value <= max) {
                 return value;
             } else {
-                throw new ValidationException(feedFile, line, String.format(
+                throw new ValidationException(feedFile, line, column, String.format(
                         "hexadecimal integer value out of range (was %x, must be no more than %x)",
                         value, max));
             }
         } else {
-            throw new ValidationException(feedFile, line, String.format(
+            throw new ValidationException(feedFile, line, column, String.format(
                     "hexadecimal integer value out of range (was %d, must be at least %d)",
                     value, min));
         }
@@ -303,7 +324,7 @@ abstract class TableValidator<T> implements Iterable<T> {
             case "1":
                 return TRUE;
             default:
-                throw new ValidationException(feedFile, line, String.format(
+                throw new ValidationException(feedFile, line, column, String.format(
                         "binary integer value out of range (was %s, must be 0 or 1)", string));
         }
     }
@@ -315,7 +336,7 @@ abstract class TableValidator<T> implements Iterable<T> {
         if (string.equals("")) {
             return Integer.MIN_VALUE;
         } else if (fields.length != 3) {
-            throw new ValidationException(feedFile, line, String.format(
+            throw new ValidationException(feedFile, line, column, String.format(
                     "wrong number of subfields in time (was %d, expected 3)",
                     fields.length));
         }
@@ -325,20 +346,20 @@ abstract class TableValidator<T> implements Iterable<T> {
             minutes = Integer.parseInt(fields[1]);
             seconds = Integer.parseInt(fields[2]);
         } catch (Exception e) {
-            throw new ValidationException(feedFile, line, e);
+            throw new ValidationException(feedFile, line, column, e);
         }
 
-        if (seconds < 0) throw new ValidationException(feedFile, line, String.format(
+        if (seconds < 0) throw new ValidationException(feedFile, line, column, String.format(
                 "seconds value out of range (was %d, must be at least 0)", seconds));
-        if (seconds > 59) throw new ValidationException(feedFile, line, String.format(
+        if (seconds > 59) throw new ValidationException(feedFile, line, column, String.format(
                 "seconds value out of range (was %d, must be no more than 59)", seconds));
 
-        if (minutes < 0) throw new ValidationException(feedFile, line, String.format(
+        if (minutes < 0) throw new ValidationException(feedFile, line, column, String.format(
                 "minutes value out of range (was %d, must be at least 0)", minutes));
-        if (minutes > 59) throw new ValidationException(feedFile, line, String.format(
+        if (minutes > 59) throw new ValidationException(feedFile, line, column, String.format(
                 "minutes value out of range (was %d, must be no more than 59)", minutes));
 
-        if (hours < 0) throw new ValidationException(feedFile, line, String.format(
+        if (hours < 0) throw new ValidationException(feedFile, line, column, String.format(
                 "hours value out of range (was %d, must be at least 0)", hours));
         // According to the General Transit Feed Specification Reference hours can legally exceed 23
 
@@ -353,7 +374,7 @@ abstract class TableValidator<T> implements Iterable<T> {
             month = stringToInt(string.substring(4, 6), 0, 99);
             day = stringToInt(string.substring(6, 8), 0, 99);
         } else {
-            throw new ValidationException(feedFile, line, String.format(
+            throw new ValidationException(feedFile, line, column, String.format(
                     "date value does not have the right length (was %d long, must be 8 (YYYYMMHH))",
                     string.length()));
         }
@@ -361,7 +382,7 @@ abstract class TableValidator<T> implements Iterable<T> {
         try {
             return new LocalDate(year, month, day);
         } catch (Exception e) {
-            throw new ValidationException(feedFile, line, e);
+            throw new ValidationException(feedFile, line, column, e);
         }
     }
 
@@ -369,7 +390,7 @@ abstract class TableValidator<T> implements Iterable<T> {
         try {
             return Currency.getInstance(string);
         } catch (Exception e) {
-            throw new ValidationException(feedFile, line, e);
+            throw new ValidationException(feedFile, line, column, e);
         }
     }
 }

@@ -13,31 +13,50 @@
 
 package org.opentripplanner.gtfs.validator;
 
+import com.google.common.base.Optional;
 import org.opentripplanner.gtfs.format.FeedFile;
+
+import static com.google.common.base.Optional.absent;
+import static com.google.common.base.Optional.fromNullable;
 
 public class ValidationException extends RuntimeException {
     final public FeedFile feedFile;
     final public int line;
+    final public Optional<String> column;
 
     public ValidationException(FeedFile feedFile, int line, String string) {
-        super(message(feedFile, line, string));
+        super(message(feedFile, line, null, string));
         this.feedFile = feedFile;
         this.line = line;
+        column = absent();
     }
 
-    public ValidationException(FeedFile feedFile, int line, Throwable throwable) {
-        super(message(feedFile, line, throwable.getMessage()), throwable);
+    public ValidationException(FeedFile feedFile, int line, String column, String string) {
+        super(message(feedFile, line, column, string));
         this.feedFile = feedFile;
         this.line = line;
+        this.column = fromNullable(column);
     }
 
-    private static String message(FeedFile feedFile, int line, String string) {
+    public ValidationException(FeedFile feedFile, int line, String column, Throwable throwable) {
+        super(message(feedFile, line, column, throwable.toString()), throwable);
+        this.feedFile = feedFile;
+        this.line = line;
+        this.column = fromNullable(column);
+    }
+
+    private static String message(FeedFile feedFile, int line, String column, String string) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(feedFile);
 
         if (line > 0){
             stringBuilder.append(':');
             stringBuilder.append(line);
+
+            if (column != null) {
+                stringBuilder.append(':');
+                stringBuilder.append(column);
+            }
         }
 
         stringBuilder.append(": ");
