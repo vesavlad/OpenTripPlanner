@@ -20,6 +20,7 @@ import com.google.common.collect.Iterables;
 import org.joda.time.LocalDate;
 import org.opentripplanner.gtfs.format.FeedFile;
 import org.opentripplanner.gtfs.validator.ValidationException;
+import org.opentripplanner.routing.trippattern.Deduplicator;
 
 import java.net.URL;
 import java.util.Currency;
@@ -29,15 +30,19 @@ import java.util.TimeZone;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static com.google.common.base.Optional.absent;
+import static com.google.common.base.Optional.fromNullable;
+import static com.google.common.base.Optional.of;
 
 abstract class TableValidator<T> implements Iterable<T> {
+    final private Deduplicator deduplicator;
     final private FeedFile feedFile;
     final Iterable<Map<String, String>> maps;
     private int line = 1;
     private String column;
     Map<String, String> row;
 
-    TableValidator(FeedFile feedFile, Iterable<Map<String, String>> input) {
+    TableValidator(FeedFile feedFile, Iterable<Map<String, String>> input, Deduplicator dedup) {
         this.feedFile = feedFile;
         maps = Iterables.transform(input, new Function<Map<String, String>, Map<String, String>>() {
             @Override
@@ -53,6 +58,7 @@ abstract class TableValidator<T> implements Iterable<T> {
                 }
             }
         });
+        deduplicator = dedup;
     }
 
     public String requiredString(String column) {
@@ -62,19 +68,13 @@ abstract class TableValidator<T> implements Iterable<T> {
         if (string == null) {
             throw new ValidationException(feedFile, 1, "required column " + column + " is omitted");
         } else {
-            return string;
+            return deduplicateString(string);
         }
     }
 
     public Optional<String> optionalString(String column) {
         this.column = column;
-        String string = row.get(column);
-
-        if (string == null) {
-            return Optional.absent();
-        } else {
-            return Optional.of(string);
-        }
+        return deduplicateOptionalString(row.get(column));
     }
 
     public URL requiredUrl(String column) {
@@ -87,9 +87,9 @@ abstract class TableValidator<T> implements Iterable<T> {
         String string = row.get(column);
 
         if (Strings.isNullOrEmpty(string)) {
-            return Optional.absent();
+            return absent();
         } else {
-            return Optional.of(stringToUrl(string));
+            return of(stringToUrl(string));
         }
     }
 
@@ -103,9 +103,9 @@ abstract class TableValidator<T> implements Iterable<T> {
         String string = row.get(column);
 
         if (Strings.isNullOrEmpty(string)) {
-            return Optional.absent();
+            return absent();
         } else {
-            return Optional.of(stringToTz(string));
+            return of(stringToTz(string));
         }
     }
 
@@ -119,9 +119,9 @@ abstract class TableValidator<T> implements Iterable<T> {
         String string = row.get(column);
 
         if (string == null) {
-            return Optional.absent();
+            return absent();
         } else {
-            return Optional.of(stringToLang(string));
+            return of(stringToLang(string));
         }
     }
 
@@ -135,9 +135,9 @@ abstract class TableValidator<T> implements Iterable<T> {
         String string = row.get(column);
 
         if (Strings.isNullOrEmpty(string)) {
-            return Optional.absent();
+            return absent();
         } else {
-            return Optional.of(stringToDouble(string, 0, Double.MAX_VALUE));
+            return of(stringToDouble(string, 0, Double.MAX_VALUE));
         }
     }
 
@@ -151,9 +151,9 @@ abstract class TableValidator<T> implements Iterable<T> {
         String string = requiredString(column);
 
         if (string.equals("")) {
-            return Optional.absent();
+            return absent();
         } else {
-            return Optional.of(stringToInt(string, min, max));
+            return of(stringToInt(string, min, max));
         }
     }
 
@@ -162,9 +162,9 @@ abstract class TableValidator<T> implements Iterable<T> {
         String string = row.get(column);
 
         if (Strings.isNullOrEmpty(string)) {
-            return Optional.absent();
+            return absent();
         } else {
-            return Optional.of(stringToInt(string, min, max));
+            return of(stringToInt(string, min, max));
         }
     }
 
@@ -189,9 +189,9 @@ abstract class TableValidator<T> implements Iterable<T> {
         String string = row.get(column);
 
         if (string == null) {
-            return Optional.absent();
+            return absent();
         } else {
-            return Optional.of(stringBinToBool(string));
+            return of(stringBinToBool(string));
         }
     }
 
@@ -210,9 +210,9 @@ abstract class TableValidator<T> implements Iterable<T> {
         String string = row.get(column);
 
         if (string == null) {
-            return Optional.absent();
+            return absent();
         } else {
-            return Optional.of(stringToDate(string));
+            return of(stringToDate(string));
         }
     }
 
@@ -392,5 +392,13 @@ abstract class TableValidator<T> implements Iterable<T> {
         } catch (Exception e) {
             throw new ValidationException(feedFile, line, column, e);
         }
+    }
+
+    private String deduplicateString(String s) {
+        return (deduplicator != null) ? deduplicator.deduplicateString(s) : s;
+    }
+
+    private Optional<String> deduplicateOptionalString(String s) {
+        return (deduplicator != null) ? deduplicator.deduplicateOptionalString(s) : fromNullable(s);
     }
 }

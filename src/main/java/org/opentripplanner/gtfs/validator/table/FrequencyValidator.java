@@ -16,6 +16,7 @@ package org.opentripplanner.gtfs.validator.table;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
 import org.opentripplanner.gtfs.model.Frequency;
+import org.opentripplanner.routing.trippattern.Deduplicator;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -23,8 +24,8 @@ import java.util.Map;
 import static org.opentripplanner.gtfs.format.FeedFile.FREQUENCIES;
 
 public class FrequencyValidator extends TableValidator<Frequency> {
-    public FrequencyValidator(Iterable<Map<String, String>> input) {
-        super(FREQUENCIES, input);
+    public FrequencyValidator(Iterable<Map<String, String>> input, Deduplicator dedup) {
+        super(FREQUENCIES, input, dedup);
     }
 
     @Override

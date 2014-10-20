@@ -16,6 +16,7 @@ package org.opentripplanner.gtfs.validator.table;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
 import org.opentripplanner.gtfs.model.StopTime;
+import org.opentripplanner.routing.trippattern.Deduplicator;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -23,8 +24,8 @@ import java.util.Map;
 import static org.opentripplanner.gtfs.format.FeedFile.STOP_TIMES;
 
 public class StopTimeValidator extends TableValidator<StopTime> {
-    public StopTimeValidator(Iterable<Map<String, String>> input) {
-        super(STOP_TIMES, input);
+    public StopTimeValidator(Iterable<Map<String, String>> input, Deduplicator dedup) {
+        super(STOP_TIMES, input, dedup);
     }
 
     @Override

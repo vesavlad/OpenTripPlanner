@@ -43,6 +43,7 @@ import org.opentripplanner.gtfs.validator.table.StopTimeValidator;
 import org.opentripplanner.gtfs.validator.table.StopValidator;
 import org.opentripplanner.gtfs.validator.table.TransferValidator;
 import org.opentripplanner.gtfs.validator.table.TripValidator;
+import org.opentripplanner.routing.trippattern.Deduplicator;
 
 import java.util.Map;
 
@@ -61,6 +62,8 @@ import static org.opentripplanner.gtfs.format.FeedFile.TRANSFERS;
 import static org.opentripplanner.gtfs.format.FeedFile.TRIPS;
 
 public class FeedValidator {
+    final private Deduplicator deduplicator;
+
     final public Iterable<Agency> agency;
     final public Iterable<Stop> stops;
     final public Iterable<Route> routes;
@@ -75,7 +78,9 @@ public class FeedValidator {
     final public Optional<Iterable<Transfer>> transfers;
     final public Optional<Iterable<FeedInfo>> feed_info;
 
-    public FeedValidator(Feed feed) {
+    public FeedValidator(Feed feed, Deduplicator dedup) {
+        deduplicator = dedup;
+
         agency = agency(feed);
         stops = stops(feed);
         routes = routes(feed);
@@ -105,103 +110,103 @@ public class FeedValidator {
         }
     }
 
-    private static Optional<Iterable<FeedInfo>> feed_info(Feed feed) {
+    private Optional<Iterable<FeedInfo>> feed_info(Feed feed) {
         Iterable<Map<String, String>> iterable = feed.get(FEED_INFO.toString());
 
         if (iterable == null) {
             return Optional.absent();
         } else {
-            return Optional.<Iterable<FeedInfo>>of(new FeedInfoValidator(iterable));
+            return Optional.<Iterable<FeedInfo>>of(new FeedInfoValidator(iterable, deduplicator));
         }
     }
 
-    private static Optional<Iterable<Transfer>> transfers(Feed feed) {
+    private Optional<Iterable<Transfer>> transfers(Feed feed) {
         Iterable<Map<String, String>> iterable = feed.get(TRANSFERS.toString());
 
         if (iterable == null) {
             return Optional.absent();
         } else {
-            return Optional.<Iterable<Transfer>>of(new TransferValidator(iterable));
+            return Optional.<Iterable<Transfer>>of(new TransferValidator(iterable, deduplicator));
         }
     }
 
-    private static Optional<Iterable<Frequency>> frequencies(Feed feed) {
+    private Optional<Iterable<Frequency>> frequencies(Feed feed) {
         Iterable<Map<String, String>> iterable = feed.get(FREQUENCIES.toString());
 
         if (iterable == null) {
             return Optional.absent();
         } else {
-            return Optional.<Iterable<Frequency>>of(new FrequencyValidator(iterable));
+            return Optional.<Iterable<Frequency>>of(new FrequencyValidator(iterable, deduplicator));
         }
     }
 
-    private static Optional<Iterable<Shape>> shapes(Feed feed) {
+    private Optional<Iterable<Shape>> shapes(Feed feed) {
         Iterable<Map<String, String>> iterable = feed.get(SHAPES.toString());
 
         if (iterable == null) {
             return Optional.absent();
         } else {
-            return Optional.<Iterable<Shape>>of(new ShapeValidator(iterable));
+            return Optional.<Iterable<Shape>>of(new ShapeValidator(iterable, deduplicator));
         }
     }
 
-    private static Optional<Iterable<FareRule>> fare_rules(Feed feed) {
+    private Optional<Iterable<FareRule>> fare_rules(Feed feed) {
         Iterable<Map<String, String>> iterable = feed.get(FARE_RULES.toString());
 
         if (iterable == null) {
             return Optional.absent();
         } else {
-            return Optional.<Iterable<FareRule>>of(new FareRuleValidator(iterable));
+            return Optional.<Iterable<FareRule>>of(new FareRuleValidator(iterable, deduplicator));
         }
     }
 
-    private static Optional<Iterable<FareAttribute>> fare_attributes(Feed feed) {
+    private Optional<Iterable<FareAttribute>> fare_attributes(Feed feed) {
         Iterable<Map<String, String>> iterable = feed.get(FARE_ATTRIBUTES.toString());
 
         if (iterable == null) {
             return Optional.absent();
         } else {
-            return Optional.<Iterable<FareAttribute>>of(new FareAttributeValidator(iterable));
+            return Optional.<Iterable<FareAttribute>>of(new FareAttributeValidator(iterable, deduplicator));
         }
     }
 
-    private static Optional<Iterable<CalendarDate>> calendar_dates(Feed feed) {
+    private Optional<Iterable<CalendarDate>> calendar_dates(Feed feed) {
         Iterable<Map<String, String>> iterable = feed.get(CALENDAR_DATES.toString());
 
         if (iterable == null) {
             return Optional.absent();
         } else {
-            return Optional.<Iterable<CalendarDate>>of(new CalendarDateValidator(iterable));
+            return Optional.<Iterable<CalendarDate>>of(new CalendarDateValidator(iterable, deduplicator));
         }
     }
 
-    private static Optional<Iterable<Calendar>> calendar(Feed feed) {
+    private Optional<Iterable<Calendar>> calendar(Feed feed) {
         Iterable<Map<String, String>> iterable = feed.get(CALENDAR.toString());
 
         if (iterable == null) {
             return Optional.absent();
         } else {
-            return Optional.<Iterable<Calendar>>of(new CalendarValidator(iterable));
+            return Optional.<Iterable<Calendar>>of(new CalendarValidator(iterable, deduplicator));
         }
     }
 
-    private static Iterable<StopTime> stop_times(Feed feed) {
-        return new StopTimeValidator(required(feed, STOP_TIMES));
+    private Iterable<StopTime> stop_times(Feed feed) {
+        return new StopTimeValidator(required(feed, STOP_TIMES), deduplicator);
     }
 
-    private static Iterable<Trip> trips(Feed feed) {
-        return new TripValidator(required(feed, TRIPS));
+    private Iterable<Trip> trips(Feed feed) {
+        return new TripValidator(required(feed, TRIPS), deduplicator);
     }
 
-    private static Iterable<Route> routes(Feed feed) {
-        return new RouteValidator(required(feed, ROUTES));
+    private Iterable<Route> routes(Feed feed) {
+        return new RouteValidator(required(feed, ROUTES), deduplicator);
     }
 
-    private static Iterable<Stop> stops(Feed feed) {
-        return new StopValidator(required(feed, STOPS));
+    private Iterable<Stop> stops(Feed feed) {
+        return new StopValidator(required(feed, STOPS), deduplicator);
     }
 
-    private static Iterable<Agency> agency(Feed feed) {
-        return new AgencyValidator(required(feed, AGENCY));
+    private Iterable<Agency> agency(Feed feed) {
+        return new AgencyValidator(required(feed, AGENCY), deduplicator);
     }
 }

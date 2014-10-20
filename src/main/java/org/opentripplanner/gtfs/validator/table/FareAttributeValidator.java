@@ -16,6 +16,7 @@ package org.opentripplanner.gtfs.validator.table;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
 import org.opentripplanner.gtfs.model.FareAttribute;
+import org.opentripplanner.routing.trippattern.Deduplicator;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -23,8 +24,8 @@ import java.util.Map;
 import static org.opentripplanner.gtfs.format.FeedFile.FARE_ATTRIBUTES;
 
 public class FareAttributeValidator extends TableValidator<FareAttribute> {
-    public FareAttributeValidator(Iterable<Map<String, String>> input) {
-        super(FARE_ATTRIBUTES, input);
+    public FareAttributeValidator(Iterable<Map<String, String>> input, Deduplicator dedup) {
+        super(FARE_ATTRIBUTES, input, dedup);
     }
 
     @Override

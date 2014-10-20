@@ -16,6 +16,7 @@ package org.opentripplanner.gtfs.validator.table;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
 import org.opentripplanner.gtfs.model.Trip;
+import org.opentripplanner.routing.trippattern.Deduplicator;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -23,8 +24,8 @@ import java.util.Map;
 import static org.opentripplanner.gtfs.format.FeedFile.TRIPS;
 
 public class TripValidator extends TableValidator<Trip> {
-    public TripValidator(Iterable<Map<String, String>> input) {
-        super(TRIPS, input);
+    public TripValidator(Iterable<Map<String, String>> input, Deduplicator dedup) {
+        super(TRIPS, input, dedup);
     }
 
     @Override

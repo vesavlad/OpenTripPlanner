@@ -47,7 +47,7 @@ public class RoundTrip {
         }
 
         try (Feed feed = new Feed(args[0])) {
-            FeedValidator feedValidator = new FeedValidator(feed);
+            FeedValidator feedValidator = new FeedValidator(feed, null);
 
             {
                 CsvWriter csvWriter = new CsvWriter("agency.txt", ',', UTF8);

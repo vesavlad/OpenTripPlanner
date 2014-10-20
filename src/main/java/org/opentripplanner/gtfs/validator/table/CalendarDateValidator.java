@@ -16,6 +16,7 @@ package org.opentripplanner.gtfs.validator.table;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
 import org.opentripplanner.gtfs.model.CalendarDate;
+import org.opentripplanner.routing.trippattern.Deduplicator;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -23,8 +24,8 @@ import java.util.Map;
 import static org.opentripplanner.gtfs.format.FeedFile.CALENDAR_DATES;
 
 public class CalendarDateValidator extends TableValidator<CalendarDate> {
-    public CalendarDateValidator(Iterable<Map<String, String>> input) {
-        super(CALENDAR_DATES, input);
+    public CalendarDateValidator(Iterable<Map<String, String>> input, Deduplicator dedup) {
+        super(CALENDAR_DATES, input, dedup);
     }
 
     @Override

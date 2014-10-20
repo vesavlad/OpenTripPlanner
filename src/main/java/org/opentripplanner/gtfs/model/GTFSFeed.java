@@ -1,3 +1,16 @@
+/* This program is free software: you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public License
+ as published by the Free Software Foundation, either version 3 of
+ the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
+
 package org.opentripplanner.gtfs.model;
 
 import com.google.common.base.Optional;
@@ -12,6 +25,7 @@ import org.mapdb.Fun.Tuple2;
 import org.opentripplanner.gtfs.format.Feed;
 import org.opentripplanner.gtfs.validator.ValidationException;
 import org.opentripplanner.gtfs.validator.feed.FeedValidator;
+import org.opentripplanner.routing.trippattern.Deduplicator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,11 +77,11 @@ public class GTFSFeed {
 
     public final Optional<FeedInfo>         feed_info                          ;
 
-    public GTFSFeed(String file) {
+    public GTFSFeed(String file, Deduplicator dedup) {
         LOG.info("Loading GTFS feed");
 
         try (Feed feed = new Feed(file)) {
-            final FeedValidator feedValidator = new FeedValidator(feed);
+            final FeedValidator feedValidator = new FeedValidator(feed,  dedup);
 
             LOG.info("Loading agency.txt");
             Iterator<Agency> iterator = feedValidator.agency.iterator();

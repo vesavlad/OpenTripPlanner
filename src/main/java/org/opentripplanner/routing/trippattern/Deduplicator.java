@@ -13,6 +13,7 @@
 
 package org.opentripplanner.routing.trippattern;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 
 import java.io.Serializable;
@@ -25,23 +26,26 @@ import java.util.Map;
  * Java's String.intern uses perm gen space and is broken anyway.
  */
 public class Deduplicator implements Serializable {
-    private static final long serialVersionUID = 20140524L;
+    private static final Optional<String> ABSENT = Optional.absent();
+    private static final long serialVersionUID = 20141020L;
 
     private final Map<IntArray, IntArray> canonicalIntArrays = Maps.newHashMap();
     private final Map<String, String> canonicalStrings = Maps.newHashMap();
+    private final Map<String, Optional<String>> canonicalOptionalStrings = Maps.newHashMap();
     private final Map<BitSet, BitSet> canonicalBitSets = Maps.newHashMap();
     private final Map<StringArray, StringArray> canonicalStringArrays = Maps.newHashMap();
 
     /** Free up any memory used by the deduplicator. */
-    public void reset() {
+    public synchronized void reset() {
         canonicalIntArrays.clear();
         canonicalStrings.clear();
+        canonicalOptionalStrings.clear();
         canonicalBitSets.clear();
         canonicalStringArrays.clear();
     }
 
     /** Used to deduplicate time and stop sequence arrays. The same times may occur in many trips. */
-    public int[] deduplicateIntArray(int[] original) {
+    public synchronized int[] deduplicateIntArray(int[] original) {
         if (original == null) return null;
         IntArray intArray = new IntArray(original);
         IntArray canonical = canonicalIntArrays.get(intArray);
@@ -52,7 +56,7 @@ public class Deduplicator implements Serializable {
         return canonical.array;
     }
 
-    public String deduplicateString(String original) {
+    public synchronized String deduplicateString(String original) {
         if (original == null) return null;
         String canonical = canonicalStrings.get(original);
         if (canonical == null) {
@@ -62,7 +66,17 @@ public class Deduplicator implements Serializable {
         return canonical;
     }
 
-    public BitSet deduplicateBitSet(BitSet original) {
+    public synchronized Optional<String> deduplicateOptionalString(String original) {
+        if (original == null) return ABSENT;
+        Optional<String> canonical = canonicalOptionalStrings.get(original);
+        if (canonical == null) {
+            canonical = Optional.of(deduplicateString(original));
+            canonicalOptionalStrings.put(canonical.get(), canonical);
+        }
+        return canonical;
+    }
+
+    public synchronized BitSet deduplicateBitSet(BitSet original) {
         if (original == null) return null;
         BitSet canonical = canonicalBitSets.get(original);
         if (canonical == null) {
@@ -72,7 +86,7 @@ public class Deduplicator implements Serializable {
         return canonical;
     }
 
-    public String[] deduplicateStringArray(String[] original) {
+    public synchronized String[] deduplicateStringArray(String[] original) {
         if (original == null) return null;
         StringArray canonical = canonicalStringArrays.get(new StringArray(original, false));
         if (canonical == null) {
