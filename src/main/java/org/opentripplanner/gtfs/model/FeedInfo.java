@@ -17,10 +17,11 @@ import com.google.common.base.Optional;
 import org.joda.time.LocalDate;
 import org.opentripplanner.gtfs.validator.table.FeedInfoValidator;
 
+import java.io.Serializable;
 import java.net.URL;
 import java.util.Locale;
 
-public class FeedInfo {
+public class FeedInfo implements Serializable {
     final public String feed_publisher_name;
     final public URL feed_publisher_url;
     final public Locale feed_lang;

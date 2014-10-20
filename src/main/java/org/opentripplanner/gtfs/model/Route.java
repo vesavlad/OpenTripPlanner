@@ -16,9 +16,10 @@ package org.opentripplanner.gtfs.model;
 import com.google.common.base.Optional;
 import org.opentripplanner.gtfs.validator.table.RouteValidator;
 
+import java.io.Serializable;
 import java.net.URL;
 
-public class Route {
+public class Route implements Serializable {
     final public String route_id;
     final public Optional<String> agency_id;
     final public String route_short_name;

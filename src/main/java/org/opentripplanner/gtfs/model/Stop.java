@@ -16,10 +16,11 @@ package org.opentripplanner.gtfs.model;
 import com.google.common.base.Optional;
 import org.opentripplanner.gtfs.validator.table.StopValidator;
 
+import java.io.Serializable;
 import java.net.URL;
 import java.util.TimeZone;
 
-public class Stop {
+public class Stop implements Serializable {
     final public String stop_id;
     final public Optional<String> stop_code;
     final public String stop_name;

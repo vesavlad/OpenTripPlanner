@@ -16,9 +16,10 @@ package org.opentripplanner.gtfs.model;
 import com.google.common.base.Optional;
 import org.opentripplanner.gtfs.validator.table.FareAttributeValidator;
 
+import java.io.Serializable;
 import java.util.Currency;
 
-public class FareAttribute {
+public class FareAttribute implements Serializable {
     final public String fare_id;
     final public double price;
     final public Currency currency_type;

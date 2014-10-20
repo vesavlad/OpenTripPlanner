@@ -16,7 +16,9 @@ package org.opentripplanner.gtfs.model;
 import com.google.common.base.Optional;
 import org.opentripplanner.gtfs.validator.table.TripValidator;
 
-public class Trip {
+import java.io.Serializable;
+
+public class Trip implements Serializable {
     final public String route_id;
     final public String service_id;
     final public String trip_id;

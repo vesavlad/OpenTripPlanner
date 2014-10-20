@@ -16,7 +16,9 @@ package org.opentripplanner.gtfs.model;
 import com.google.common.base.Optional;
 import org.opentripplanner.gtfs.validator.table.FareRuleValidator;
 
-public class FareRule {
+import java.io.Serializable;
+
+public class FareRule implements Serializable {
     final public String fare_id;
     final public Optional<String> route_id;
     final public Optional<String> origin_id;

@@ -16,7 +16,9 @@ package org.opentripplanner.gtfs.model;
 import org.joda.time.LocalDate;
 import org.opentripplanner.gtfs.validator.table.CalendarValidator;
 
-public class Calendar {
+import java.io.Serializable;
+
+public class Calendar implements Serializable {
     final public String service_id;
     final public boolean monday;
     final public boolean tuesday;

@@ -12,7 +12,7 @@ public class GTFSMain {
     //static final String INPUT = "/var/otp/graphs/trimet/gtfs.zip";        
     
     public static void main (String[] args) {
-        GTFSFeed feed = GTFSFeed.fromFile(INPUT);
+        GTFSFeed feed = new GTFSFeed(INPUT);
         feed.findPatterns();
         feed.db.close();
     }

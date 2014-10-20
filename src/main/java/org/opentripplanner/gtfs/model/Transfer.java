@@ -16,7 +16,9 @@ package org.opentripplanner.gtfs.model;
 import com.google.common.base.Optional;
 import org.opentripplanner.gtfs.validator.table.TransferValidator;
 
-public class Transfer {
+import java.io.Serializable;
+
+public class Transfer implements Serializable {
     final public String from_stop_id;
     final public String to_stop_id;
     final public Optional<Integer> transfer_type;

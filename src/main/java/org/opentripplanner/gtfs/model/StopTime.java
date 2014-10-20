@@ -16,7 +16,9 @@ package org.opentripplanner.gtfs.model;
 import com.google.common.base.Optional;
 import org.opentripplanner.gtfs.validator.table.StopTimeValidator;
 
-public class StopTime {
+import java.io.Serializable;
+
+public class StopTime implements Serializable {
     final public String trip_id;
     final public int arrival_time;
     final public int departure_time;

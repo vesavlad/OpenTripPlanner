@@ -16,7 +16,9 @@ package org.opentripplanner.gtfs.model;
 import com.google.common.base.Optional;
 import org.opentripplanner.gtfs.validator.table.FrequencyValidator;
 
-public class Frequency {
+import java.io.Serializable;
+
+public class Frequency implements Serializable {
     final public String trip_id;
     final public int start_time;
     final public int end_time;

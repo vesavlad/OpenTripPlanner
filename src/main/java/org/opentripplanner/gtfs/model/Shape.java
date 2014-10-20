@@ -16,7 +16,9 @@ package org.opentripplanner.gtfs.model;
 import com.google.common.base.Optional;
 import org.opentripplanner.gtfs.validator.table.ShapeValidator;
 
-public class Shape {
+import java.io.Serializable;
+
+public class Shape implements Serializable {
     final public String shape_id;
     final public double shape_pt_lat;
     final public double shape_pt_lon;

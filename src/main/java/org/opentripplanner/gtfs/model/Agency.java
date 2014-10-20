@@ -16,11 +16,12 @@ package org.opentripplanner.gtfs.model;
 import com.google.common.base.Optional;
 import org.opentripplanner.gtfs.validator.table.AgencyValidator;
 
+import java.io.Serializable;
 import java.net.URL;
 import java.util.Locale;
 import java.util.TimeZone;
 
-public class Agency {
+public class Agency implements Serializable {
     final public Optional<String> agency_id;
     final public String agency_name;
     final public URL agency_url;
