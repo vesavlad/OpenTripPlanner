@@ -60,14 +60,7 @@ abstract class TableValidator<T> implements Iterable<T> {
     }
 
     public String requiredString(String column) {
-        this.column = column;
-        String string = row.get(column);
-
-        if (string == null) {
-            throw new ValidationException(feedFile, 1, "required column " + column + " is omitted");
-        } else {
-            return deduplicateString(string);
-        }
+        return deduplicateString(required(column));
     }
 
     public Optional<String> optionalString(String column) {
@@ -77,7 +70,7 @@ abstract class TableValidator<T> implements Iterable<T> {
 
     public URL requiredUrl(String column) {
         this.column = column;
-        return deduplicateUrl(stringToUrl(requiredString(column)));
+        return deduplicateUrl(stringToUrl(required(column)));
     }
 
     public Optional<URL> optionalUrl(String column) {
@@ -93,7 +86,7 @@ abstract class TableValidator<T> implements Iterable<T> {
 
     public TimeZone requiredTz(String column) {
         this.column = column;
-        return deduplicateTz(stringToTz(requiredString(column)));
+        return deduplicateTz(stringToTz(required(column)));
     }
 
     public Optional<TimeZone> optionalTz(String column) {
@@ -109,7 +102,7 @@ abstract class TableValidator<T> implements Iterable<T> {
 
     public Locale requiredLang(String column) {
         this.column = column;
-        return deduplicateLang(stringToLang(requiredString(column)));
+        return deduplicateLang(stringToLang(required(column)));
     }
 
     public Optional<Locale> optionalLang(String column) {
@@ -125,7 +118,7 @@ abstract class TableValidator<T> implements Iterable<T> {
 
     public double requiredDouble(String column, double min, double max) {
         this.column = column;
-        return stringToDouble(requiredString(column), min, max);
+        return stringToDouble(required(column), min, max);
     }
 
     public Optional<Double> optionalDouble(String column) {
@@ -141,12 +134,12 @@ abstract class TableValidator<T> implements Iterable<T> {
 
     public int requiredInt(String column, int min, int max) {
         this.column = column;
-        return stringToInt(requiredString(column), min, max);
+        return stringToInt(required(column), min, max);
     }
 
     public Optional<Integer> requiredIntOptionalValue(String column, int min, int max) {
         this.column = column;
-        String string = requiredString(column);
+        String string = required(column);
 
         if (string.equals("")) {
             return absent();
@@ -179,7 +172,7 @@ abstract class TableValidator<T> implements Iterable<T> {
 
     public boolean requiredBoolean(String column) {
         this.column = column;
-        return stringBinToBoolean(requiredString(column));
+        return stringBinToBoolean(required(column));
     }
 
     public Optional<Boolean> optionalBoolean(String column) {
@@ -195,12 +188,12 @@ abstract class TableValidator<T> implements Iterable<T> {
 
     public int requiredTimeOfDay(String column) {
         this.column = column;
-        return stringToTimeOfDay(requiredString(column));
+        return stringToTimeOfDay(required(column));
     }
 
     public LocalDate requiredDate(String column) {
         this.column = column;
-        return deduplicateDate(stringToDate(requiredString(column)));
+        return deduplicateDate(stringToDate(required(column)));
     }
 
     public Optional<LocalDate> optionalDate(String column) {
@@ -216,7 +209,18 @@ abstract class TableValidator<T> implements Iterable<T> {
 
     public Currency requiredCurrency(String column) {
         this.column = column;
-        return stringToCurrency(requiredString(column));
+        return stringToCurrency(required(column));
+    }
+
+    private String required(String column) {
+        this.column = column;
+        String string = row.get(column);
+
+        if (string == null) {
+            throw new ValidationException(feedFile, 1, "required column " + column + " is omitted");
+        } else {
+            return string;
+        }
     }
 
     private URL stringToUrl(String string) {
