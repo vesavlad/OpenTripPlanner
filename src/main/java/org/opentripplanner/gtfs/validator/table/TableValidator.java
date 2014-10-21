@@ -60,7 +60,8 @@ abstract class TableValidator<T> implements Iterable<T> {
     }
 
     public String requiredString(String column) {
-        return deduplicateString(required(column));
+        this.column = column;
+        return deduplicateString(required());
     }
 
     public Optional<String> optionalString(String column) {
@@ -70,7 +71,7 @@ abstract class TableValidator<T> implements Iterable<T> {
 
     public URL requiredUrl(String column) {
         this.column = column;
-        return deduplicateUrl(stringToUrl(required(column)));
+        return deduplicateUrl(stringToUrl(required()));
     }
 
     public Optional<URL> optionalUrl(String column) {
@@ -86,7 +87,7 @@ abstract class TableValidator<T> implements Iterable<T> {
 
     public TimeZone requiredTz(String column) {
         this.column = column;
-        return deduplicateTz(stringToTz(required(column)));
+        return deduplicateTz(stringToTz(required()));
     }
 
     public Optional<TimeZone> optionalTz(String column) {
@@ -102,7 +103,7 @@ abstract class TableValidator<T> implements Iterable<T> {
 
     public Locale requiredLang(String column) {
         this.column = column;
-        return deduplicateLang(stringToLang(required(column)));
+        return deduplicateLang(stringToLang(required()));
     }
 
     public Optional<Locale> optionalLang(String column) {
@@ -118,7 +119,7 @@ abstract class TableValidator<T> implements Iterable<T> {
 
     public double requiredDouble(String column, double min, double max) {
         this.column = column;
-        return stringToDouble(required(column), min, max);
+        return stringToDouble(required(), min, max);
     }
 
     public Optional<Double> optionalDouble(String column) {
@@ -134,12 +135,12 @@ abstract class TableValidator<T> implements Iterable<T> {
 
     public int requiredInt(String column, int min, int max) {
         this.column = column;
-        return stringToInt(required(column), min, max);
+        return stringToInt(required(), min, max);
     }
 
     public Optional<Integer> requiredIntOptionalValue(String column, int min, int max) {
         this.column = column;
-        String string = required(column);
+        String string = required();
 
         if (string.equals("")) {
             return absent();
@@ -172,7 +173,7 @@ abstract class TableValidator<T> implements Iterable<T> {
 
     public boolean requiredBoolean(String column) {
         this.column = column;
-        return stringBinToBoolean(required(column));
+        return stringBinToBoolean(required());
     }
 
     public Optional<Boolean> optionalBoolean(String column) {
@@ -188,12 +189,12 @@ abstract class TableValidator<T> implements Iterable<T> {
 
     public int requiredTimeOfDay(String column) {
         this.column = column;
-        return stringToTimeOfDay(required(column));
+        return stringToTimeOfDay(required());
     }
 
     public LocalDate requiredDate(String column) {
         this.column = column;
-        return deduplicateDate(stringToDate(required(column)));
+        return deduplicateDate(stringToDate(required()));
     }
 
     public Optional<LocalDate> optionalDate(String column) {
@@ -209,11 +210,10 @@ abstract class TableValidator<T> implements Iterable<T> {
 
     public Currency requiredCurrency(String column) {
         this.column = column;
-        return stringToCurrency(required(column));
+        return stringToCurrency(required());
     }
 
-    private String required(String column) {
-        this.column = column;
+    private String required() {
         String string = row.get(column);
 
         if (string == null) {
