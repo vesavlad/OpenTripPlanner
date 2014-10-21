@@ -15,21 +15,26 @@ package org.opentripplanner.routing.trippattern;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
+import org.joda.time.LocalDate;
 
 import java.io.Serializable;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
+
+import static com.google.common.base.Optional.absent;
 
 /**
  * Does the same thing as String.intern, but for several different types.
  * Java's String.intern uses perm gen space and is broken anyway.
  */
 public class Deduplicator implements Serializable {
-    private static final Optional<String> ABSENT = Optional.absent();
     private static final Optional<Boolean> FALSE = Optional.of(false);
     private static final Optional<Boolean> TRUE = Optional.of(true);
-    private static final long serialVersionUID = 20141020L;
+    private static final long serialVersionUID = 20141021L;
 
     private final Map<IntArray, IntArray> canonicalIntArrays = Maps.newHashMap();
     private final Map<String, String> canonicalStrings = Maps.newHashMap();
@@ -38,6 +43,14 @@ public class Deduplicator implements Serializable {
     private final Map<StringArray, StringArray> canonicalStringArrays = Maps.newHashMap();
     private final Map<Integer, Optional<Integer>> canonicalOptionalIntegers = Maps.newHashMap();
     private final Map<Double, Optional<Double>> canonicalOptionalDoubles = Maps.newHashMap();
+    private final Map<URL, URL> canonicalUrls = Maps.newHashMap();
+    private final Map<URL, Optional<URL>> canonicalOptionalUrls = Maps.newHashMap();
+    private final Map<TimeZone, TimeZone> canonicalTzs = Maps.newHashMap();
+    private final Map<TimeZone, Optional<TimeZone>> canonicalOptionalTzs = Maps.newHashMap();
+    private final Map<Locale, Locale> canonicalLangs = Maps.newHashMap();
+    private final Map<Locale, Optional<Locale>> canonicalOptionalLangs = Maps.newHashMap();
+    private final Map<LocalDate, LocalDate> canonicalDates = Maps.newHashMap();
+    private final Map<LocalDate, Optional<LocalDate>> canonicalOptionalDates = Maps.newHashMap();
 
     /** Free up any memory used by the deduplicator. */
     public synchronized void reset() {
@@ -48,6 +61,14 @@ public class Deduplicator implements Serializable {
         canonicalStringArrays.clear();
         canonicalOptionalIntegers.clear();
         canonicalOptionalDoubles.clear();
+        canonicalUrls.clear();
+        canonicalOptionalUrls.clear();
+        canonicalTzs.clear();
+        canonicalOptionalTzs.clear();
+        canonicalLangs.clear();
+        canonicalOptionalLangs.clear();
+        canonicalDates.clear();
+        canonicalOptionalDates.clear();
     }
 
     /** Used to deduplicate time and stop sequence arrays. The same times may occur in many trips. */
@@ -73,7 +94,7 @@ public class Deduplicator implements Serializable {
     }
 
     public synchronized Optional<String> deduplicateOptionalString(String original) {
-        if (original == null) return ABSENT;
+        if (original == null) return absent();
         Optional<String> canonical = canonicalOptionalStrings.get(original);
         if (canonical == null) {
             canonical = Optional.of(deduplicateString(original));
@@ -122,6 +143,86 @@ public class Deduplicator implements Serializable {
 
     public synchronized Optional<Boolean> deduplicateOptionalBoolean(boolean original) {
         return original ? TRUE : FALSE;
+    }
+
+    public synchronized URL deduplicateUrl(URL original) {
+        if (original == null) return null;
+        URL canonical = canonicalUrls.get(original);
+        if (canonical == null) {
+            canonical = original;
+            canonicalUrls.put(canonical, canonical);
+        }
+        return canonical;
+    }
+
+    public synchronized Optional<URL> deduplicateOptionalUrl(URL original) {
+        if (original == null) return absent();
+        Optional<URL> canonical = canonicalOptionalUrls.get(original);
+        if (canonical == null) {
+            canonical = Optional.of(deduplicateUrl(original));
+            canonicalOptionalUrls.put(canonical.get(), canonical);
+        }
+        return canonical;
+    }
+
+    public synchronized TimeZone deduplicateTz(TimeZone original) {
+        if (original == null) return null;
+        TimeZone canonical = canonicalTzs.get(original);
+        if (canonical == null) {
+            canonical = original;
+            canonicalTzs.put(canonical, canonical);
+        }
+        return canonical;
+    }
+
+    public synchronized Optional<TimeZone> deduplicateOptionalTz(TimeZone original) {
+        if (original == null) return absent();
+        Optional<TimeZone> canonical = canonicalOptionalTzs.get(original);
+        if (canonical == null) {
+            canonical = Optional.of(deduplicateTz(original));
+            canonicalOptionalTzs.put(canonical.get(), canonical);
+        }
+        return canonical;
+    }
+
+    public synchronized Locale deduplicateLang(Locale original) {
+        if (original == null) return null;
+        Locale canonical = canonicalLangs.get(original);
+        if (canonical == null) {
+            canonical = original;
+            canonicalLangs.put(canonical, canonical);
+        }
+        return canonical;
+    }
+
+    public synchronized Optional<Locale> deduplicateOptionalLang(Locale original) {
+        if (original == null) return absent();
+        Optional<Locale> canonical = canonicalOptionalLangs.get(original);
+        if (canonical == null) {
+            canonical = Optional.of(deduplicateLang(original));
+            canonicalOptionalLangs.put(canonical.get(), canonical);
+        }
+        return canonical;
+    }
+
+    public synchronized LocalDate deduplicateDate(LocalDate original) {
+        if (original == null) return null;
+        LocalDate canonical = canonicalDates.get(original);
+        if (canonical == null) {
+            canonical = original;
+            canonicalDates.put(canonical, canonical);
+        }
+        return canonical;
+    }
+
+    public synchronized Optional<LocalDate> deduplicateOptionalDate(LocalDate original) {
+        if (original == null) return absent();
+        Optional<LocalDate> canonical = canonicalOptionalDates.get(original);
+        if (canonical == null) {
+            canonical = Optional.of(deduplicateDate(original));
+            canonicalOptionalDates.put(canonical.get(), canonical);
+        }
+        return canonical;
     }
 
     /** A wrapper for a primitive int array. This is insane but necessary in Java. */

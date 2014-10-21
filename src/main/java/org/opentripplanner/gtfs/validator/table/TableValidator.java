@@ -77,7 +77,7 @@ abstract class TableValidator<T> implements Iterable<T> {
 
     public URL requiredUrl(String column) {
         this.column = column;
-        return stringToUrl(requiredString(column));
+        return deduplicateUrl(stringToUrl(requiredString(column)));
     }
 
     public Optional<URL> optionalUrl(String column) {
@@ -87,13 +87,13 @@ abstract class TableValidator<T> implements Iterable<T> {
         if (Strings.isNullOrEmpty(string)) {
             return absent();
         } else {
-            return of(stringToUrl(string));
+            return deduplicateOptionalUrl(stringToUrl(string));
         }
     }
 
     public TimeZone requiredTz(String column) {
         this.column = column;
-        return stringToTz(requiredString(column));
+        return deduplicateTz(stringToTz(requiredString(column)));
     }
 
     public Optional<TimeZone> optionalTz(String column) {
@@ -103,13 +103,13 @@ abstract class TableValidator<T> implements Iterable<T> {
         if (Strings.isNullOrEmpty(string)) {
             return absent();
         } else {
-            return of(stringToTz(string));
+            return deduplicateOptionalTz(stringToTz(string));
         }
     }
 
     public Locale requiredLang(String column) {
         this.column = column;
-        return stringToLang(requiredString(column));
+        return deduplicateLang(stringToLang(requiredString(column)));
     }
 
     public Optional<Locale> optionalLang(String column) {
@@ -119,7 +119,7 @@ abstract class TableValidator<T> implements Iterable<T> {
         if (string == null) {
             return absent();
         } else {
-            return of(stringToLang(string));
+            return deduplicateOptionalLang(stringToLang(string));
         }
     }
 
@@ -179,7 +179,7 @@ abstract class TableValidator<T> implements Iterable<T> {
 
     public boolean requiredBoolean(String column) {
         this.column = column;
-        return stringBinToBool(requiredString(column));
+        return stringBinToBoolean(requiredString(column));
     }
 
     public Optional<Boolean> optionalBoolean(String column) {
@@ -189,7 +189,7 @@ abstract class TableValidator<T> implements Iterable<T> {
         if (string == null) {
             return absent();
         } else {
-            return deduplicateOptionalBoolean(stringBinToBool(string));
+            return deduplicateOptionalBoolean(stringBinToBoolean(string));
         }
     }
 
@@ -200,7 +200,7 @@ abstract class TableValidator<T> implements Iterable<T> {
 
     public LocalDate requiredDate(String column) {
         this.column = column;
-        return stringToDate(requiredString(column));
+        return deduplicateDate(stringToDate(requiredString(column)));
     }
 
     public Optional<LocalDate> optionalDate(String column) {
@@ -210,7 +210,7 @@ abstract class TableValidator<T> implements Iterable<T> {
         if (string == null) {
             return absent();
         } else {
-            return of(stringToDate(string));
+            return deduplicateOptionalDate(stringToDate(string));
         }
     }
 
@@ -315,7 +315,7 @@ abstract class TableValidator<T> implements Iterable<T> {
         }
     }
 
-    private boolean stringBinToBool(String string) {
+    private boolean stringBinToBoolean(String string) {
         switch (string) {
             case "0":
                 return false;
@@ -402,6 +402,38 @@ abstract class TableValidator<T> implements Iterable<T> {
 
     private Optional<Integer> deduplicateOptionalInteger(int i) {
         return (deduplicator != null) ? deduplicator.deduplicateOptionalInteger(i) : of(i);
+    }
+
+    private URL deduplicateUrl(URL u) {
+        return (deduplicator != null) ? deduplicator.deduplicateUrl(u) : u;
+    }
+
+    private Optional<URL> deduplicateOptionalUrl(URL u) {
+        return (deduplicator != null) ? deduplicator.deduplicateOptionalUrl(u) : of(u);
+    }
+
+    private TimeZone deduplicateTz(TimeZone t) {
+        return (deduplicator != null) ? deduplicator.deduplicateTz(t) : t;
+    }
+
+    private Optional<TimeZone> deduplicateOptionalTz(TimeZone t) {
+        return (deduplicator != null) ? deduplicator.deduplicateOptionalTz(t) : of(t);
+    }
+
+    private Locale deduplicateLang(Locale l) {
+        return (deduplicator != null) ? deduplicator.deduplicateLang(l) : l;
+    }
+
+    private Optional<Locale> deduplicateOptionalLang(Locale l) {
+        return (deduplicator != null) ? deduplicator.deduplicateOptionalLang(l) : of(l);
+    }
+
+    private LocalDate deduplicateDate(LocalDate d) {
+        return (deduplicator != null) ? deduplicator.deduplicateDate(d) : d;
+    }
+
+    private Optional<LocalDate> deduplicateOptionalDate(LocalDate d) {
+        return (deduplicator != null) ? deduplicator.deduplicateOptionalDate(d) : of(d);
     }
 
     private String deduplicateString(String s) {
