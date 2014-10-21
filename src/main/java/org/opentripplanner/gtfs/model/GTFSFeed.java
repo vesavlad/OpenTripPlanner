@@ -47,37 +47,50 @@ import static org.opentripplanner.gtfs.format.FeedFile.AGENCY;
  * All entities must be from a single feed namespace.
  */
 public class GTFSFeed {
-
     private static final Logger LOG = LoggerFactory.getLogger(GTFSFeed.class);
 
-    DB db = DBMaker.newTempFileDB()
+    private final DB db = DBMaker.newTempFileDB()
             .transactionDisable()
             .asyncWriteEnable()
             .compressionEnable()
-            .make(); // db.close();
-
-    public final List<ValidationException> validationExceptions =
-            Collections.synchronizedList(Lists.<ValidationException>newArrayList());
-
-    public final Map<String, Agency>        agency          = Maps.newHashMap();
-    public final Map<String, Stop>          stops           = Maps.newHashMap();
-    public final Map<String, Route>         routes          = Maps.newHashMap();
-    public final Map<String, Trip>          trips           = Maps.newHashMap();
+            .make();
 
     // Map from 2-tuples of (trip_id, stop_sequence) to stoptimes.
-    public final Map<Tuple2, StopTime> stop_times = db.getTreeMap("stop_times");
+    private final BTreeMap<Tuple2, StopTime> stop_times_db = db.getTreeMap("stop_times");
 
-    public final Map<String, Calendar>      calendar        = Maps.newHashMap();
-    public final Map<String, CalendarDate>  calendar_dates  = Maps.newHashMap();
-    public final Map<String, FareAttribute> fare_attributes = Maps.newHashMap();
-    public final Map<String, FareRule>      fare_rules      = Maps.newHashMap();
-    public final Map<String, Shape>         shapes          = Maps.newHashMap();
-    public final Map<String, Frequency>     frequencies     = Maps.newHashMap();
-    public final Map<Tuple2, Transfer>      transfers       = Maps.newHashMap();
-
-    public final Optional<FeedInfo>         feed_info                          ;
+    public final Map<String, Agency>        agency;
+    public final Map<String, Stop>          stops;
+    public final Map<String, Route>         routes;
+    public final Map<String, Trip>          trips;
+    public final Map<Tuple2, StopTime>      stop_times;
+    public final Map<String, Calendar>      calendar;
+    public final Map<String, CalendarDate>  calendar_dates;
+    public final Map<String, FareAttribute> fare_attributes;
+    public final Map<String, FareRule>      fare_rules;
+    public final Map<String, Shape>         shapes;
+    public final Map<String, Frequency>     frequencies;
+    public final Map<Tuple2, Transfer>      transfers;
+    public final Optional<FeedInfo>         feed_info;
+    public final List<ValidationException>  validation_exceptions;
 
     public GTFSFeed(String file, Deduplicator dedup) {
+        final Map<String, Agency>        agencyMap        = Maps.newHashMap();
+        final Map<String, Stop>          stopMap          = Maps.newHashMap();
+        final Map<String, Route>         routeMap         = Maps.newHashMap();
+        final Map<String, Trip>          tripMap          = Maps.newHashMap();
+        final Map<String, Calendar>      calendarMap      = Maps.newHashMap();
+        final Map<String, CalendarDate>  calendarDateMap  = Maps.newHashMap();
+        final Map<String, FareAttribute> fareAttributeMap = Maps.newHashMap();
+        final Map<String, FareRule>      fareRuleMap      = Maps.newHashMap();
+        final Map<String, Shape>         shapeMap         = Maps.newHashMap();
+        final Map<String, Frequency>     frequencyMap     = Maps.newHashMap();
+        final Map<Tuple2, Transfer>      transferMap      = Maps.newHashMap();
+        final Optional<FeedInfo>         feedInfoOptional                    ;
+        final List<ValidationException>  validationExceptionList             ;
+
+        List<ValidationException> unsynchronizedList = Lists.newArrayList();
+        validationExceptionList = Collections.synchronizedList(unsynchronizedList);
+
         LOG.info("Loading GTFS feed");
 
         try (Feed feed = new Feed(file)) {
@@ -90,9 +103,9 @@ public class GTFSFeed {
                 Optional<String> agencyId = agency.agency_id;
 
                 if (agencyId.isPresent()) {
-                    this.agency.put(agencyId.get(), agency);
+                    agencyMap.put(agencyId.get(), agency);
                 } else {
-                    this.agency.put(null, agency);
+                    agencyMap.put(null, agency);
                 }
 
                 if (iterator.hasNext()) {
@@ -103,9 +116,9 @@ public class GTFSFeed {
                             try {
                                 agency = iterator.next();
 
-                                this.agency.put(agency.agency_id.get(), agency);
+                                agencyMap.put(agency.agency_id.get(), agency);
                             } catch (ValidationException validationException) {
-                                validationExceptions.add(validationException);
+                                validationExceptionList.add(validationException);
                             }
                         }
                     }
@@ -126,9 +139,9 @@ public class GTFSFeed {
                             Stop stop = iterator.next();
                             String k = stop.stop_id;
 
-                            stops.put(k, stop);
+                            stopMap.put(k, stop);
                         } catch (ValidationException validationException) {
-                            validationExceptions.add(validationException);
+                            validationExceptionList.add(validationException);
                         }
                     }
 
@@ -147,9 +160,9 @@ public class GTFSFeed {
                             Route route = iterator.next();
                             String k = route.route_id;
 
-                            routes.put(k, route);
+                            routeMap.put(k, route);
                         } catch (ValidationException validationException) {
-                            validationExceptions.add(validationException);
+                            validationExceptionList.add(validationException);
                         }
                     }
 
@@ -168,9 +181,9 @@ public class GTFSFeed {
                             Trip trip = iterator.next();
                             String k = trip.trip_id;
 
-                            trips.put(k, trip);
+                            tripMap.put(k, trip);
                         } catch (ValidationException validationException) {
-                            validationExceptions.add(validationException);
+                            validationExceptionList.add(validationException);
                         }
                     }
 
@@ -189,9 +202,9 @@ public class GTFSFeed {
                             StopTime stopTime = iterator.next();
                             Tuple2 k = new Tuple2(stopTime.trip_id, stopTime.stop_sequence);
 
-                            stop_times.put(k, stopTime);
+                            stop_times_db.put(k, stopTime);
                         } catch (ValidationException validationException) {
-                            validationExceptions.add(validationException);
+                            validationExceptionList.add(validationException);
                         }
                     }
 
@@ -212,9 +225,9 @@ public class GTFSFeed {
                                 Calendar calendar = iterator.next();
                                 String k = calendar.service_id;
 
-                                GTFSFeed.this.calendar.put(k, calendar);
+                                calendarMap.put(k, calendar);
                             } catch (ValidationException validationException) {
-                                validationExceptions.add(validationException);
+                                validationExceptionList.add(validationException);
                             }
                         }
                     }
@@ -237,9 +250,9 @@ public class GTFSFeed {
                                 CalendarDate calendarDate = iterator.next();
                                 String k = calendarDate.service_id;
 
-                                calendar_dates.put(k, calendarDate);
+                                calendarDateMap.put(k, calendarDate);
                             } catch (ValidationException validationException) {
-                                validationExceptions.add(validationException);
+                                validationExceptionList.add(validationException);
                             }
                         }
                     }
@@ -262,9 +275,9 @@ public class GTFSFeed {
                                 FareAttribute fareAttribute = iterator.next();
                                 String k = fareAttribute.fare_id;
 
-                                fare_attributes.put(k, fareAttribute);
+                                fareAttributeMap.put(k, fareAttribute);
                             } catch (ValidationException validationException) {
-                                validationExceptions.add(validationException);
+                                validationExceptionList.add(validationException);
                             }
                         }
                     }
@@ -286,9 +299,9 @@ public class GTFSFeed {
                                 FareRule fareRule = iterator.next();
                                 String k = fareRule.fare_id;
 
-                                fare_rules.put(k, fareRule);
+                                fareRuleMap.put(k, fareRule);
                             } catch (ValidationException validationException) {
-                                validationExceptions.add(validationException);
+                                validationExceptionList.add(validationException);
                             }
                         }
                     }
@@ -310,9 +323,9 @@ public class GTFSFeed {
                                 Shape shape = iterator.next();
                                 String k = shape.shape_id;
 
-                                shapes.put(k, shape);
+                                shapeMap.put(k, shape);
                             } catch (ValidationException validationException) {
-                                validationExceptions.add(validationException);
+                                validationExceptionList.add(validationException);
                             }
                         }
                     }
@@ -334,9 +347,9 @@ public class GTFSFeed {
                                 Frequency frequency = iterator.next();
                                 String k = frequency.trip_id;
 
-                                frequencies.put(k, frequency);
+                                frequencyMap.put(k, frequency);
                             } catch (ValidationException validationException) {
-                                validationExceptions.add(validationException);
+                                validationExceptionList.add(validationException);
                             }
                         }
                     }
@@ -358,9 +371,9 @@ public class GTFSFeed {
                                 Transfer transfer = iterator.next();
                                 Tuple2 k = (new Tuple2(transfer.from_stop_id, transfer.to_stop_id));
 
-                                transfers.put(k, transfer);
+                                transferMap.put(k, transfer);
                             } catch (ValidationException validationException) {
-                                validationExceptions.add(validationException);
+                                validationExceptionList.add(validationException);
                             }
                         }
                     }
@@ -404,7 +417,7 @@ public class GTFSFeed {
             LOG.info("Executor services have finished");
 
             LOG.info("Loading feed_info.txt");
-            feed_info = feedValidator.feed_info.isPresent() ?
+            feedInfoOptional = feedValidator.feed_info.isPresent() ?
                     Optional.of(Iterables.getOnlyElement(feedValidator.feed_info.get())) :
                     Optional.<FeedInfo>absent();
             LOG.info("Loaded feed_info.txt");
@@ -414,16 +427,31 @@ public class GTFSFeed {
         }
 
         LOG.info("Loaded GTFS feed");
+
+        validation_exceptions = Collections.unmodifiableList(unsynchronizedList);
+        feed_info = feedInfoOptional;
+        transfers = Collections.unmodifiableMap(transferMap);
+        frequencies = Collections.unmodifiableMap(frequencyMap);
+        shapes = Collections.unmodifiableMap(shapeMap);
+        fare_rules = Collections.unmodifiableMap(fareRuleMap);
+        fare_attributes = Collections.unmodifiableMap(fareAttributeMap);
+        calendar_dates = Collections.unmodifiableMap(calendarDateMap);
+        calendar = Collections.unmodifiableMap(calendarMap);
+        stop_times = Collections.unmodifiableMap(stop_times_db);
+        trips = Collections.unmodifiableMap(tripMap);
+        routes = Collections.unmodifiableMap(routeMap);
+        stops = Collections.unmodifiableMap(stopMap);
+        agency = Collections.unmodifiableMap(agencyMap);
     }
 
     // Bin all trips by the sequence of stops they visit.
     public Set<Entry<List<String>, List<String>>> findPatterns() {
-        if (validationExceptions.isEmpty()) {
+        if (validation_exceptions.isEmpty()) {
             LOG.info("GTFS feed was imported without errors");
         } else {
             LOG.error("GTFS feed is invalid, attempting to run anyway");
 
-            for (ValidationException validationException : validationExceptions) {
+            for (ValidationException validationException : validation_exceptions) {
                 LOG.error("This error occurred while importing the GTFS feed", validationException);
             }
         }
@@ -437,7 +465,7 @@ public class GTFSFeed {
                 LOG.info("trip {}", human(n));
             }
             Map<Fun.Tuple2, StopTime> tripStopTimes =
-                ((BTreeMap<Tuple2, StopTime>) stop_times).subMap(
+                (stop_times_db).subMap(
                     Fun.t2(trip_id, null),
                     Fun.t2(trip_id, Fun.HI)
                 );
@@ -459,4 +487,7 @@ public class GTFSFeed {
         return tripsForPattern.entrySet();
     }
 
+    public void closeDb() {
+        db.close();
+    }
 }
