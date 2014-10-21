@@ -36,7 +36,7 @@ public class Trip implements Serializable {
         trip_id = validator.requiredString("trip_id");
         trip_headsign = validator.optionalString("trip_headsign");
         trip_short_name = validator.optionalString("trip_short_name");
-        direction_id = validator.optionalBool("direction_id");
+        direction_id = validator.optionalBoolean("direction_id");
         block_id = validator.optionalString("block_id");
         shape_id = validator.optionalString("shape_id");
         wheelchair_accessible = validator.optionalInt("wheelchair_accessible", 0, 2);

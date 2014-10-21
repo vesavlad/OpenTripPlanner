@@ -28,8 +28,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
 import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Optional.fromNullable;
 import static com.google.common.base.Optional.of;
@@ -137,7 +135,7 @@ abstract class TableValidator<T> implements Iterable<T> {
         if (Strings.isNullOrEmpty(string)) {
             return absent();
         } else {
-            return of(stringToDouble(string, 0, Double.MAX_VALUE));
+            return deduplicateOptionalDouble(stringToDouble(string, 0, Double.MAX_VALUE));
         }
     }
 
@@ -153,7 +151,7 @@ abstract class TableValidator<T> implements Iterable<T> {
         if (string.equals("")) {
             return absent();
         } else {
-            return of(stringToInt(string, min, max));
+            return deduplicateOptionalInteger(stringToInt(string, min, max));
         }
     }
 
@@ -164,7 +162,7 @@ abstract class TableValidator<T> implements Iterable<T> {
         if (Strings.isNullOrEmpty(string)) {
             return absent();
         } else {
-            return of(stringToInt(string, min, max));
+            return deduplicateOptionalInteger(stringToInt(string, min, max));
         }
     }
 
@@ -179,19 +177,19 @@ abstract class TableValidator<T> implements Iterable<T> {
         }
     }
 
-    public boolean requiredBool(String column) {
+    public boolean requiredBoolean(String column) {
         this.column = column;
         return stringBinToBool(requiredString(column));
     }
 
-    public Optional<Boolean> optionalBool(String column) {
+    public Optional<Boolean> optionalBoolean(String column) {
         this.column = column;
         String string = row.get(column);
 
         if (string == null) {
             return absent();
         } else {
-            return of(stringBinToBool(string));
+            return deduplicateOptionalBoolean(stringBinToBool(string));
         }
     }
 
@@ -317,12 +315,12 @@ abstract class TableValidator<T> implements Iterable<T> {
         }
     }
 
-    private Boolean stringBinToBool(String string) {
+    private boolean stringBinToBool(String string) {
         switch (string) {
             case "0":
-                return FALSE;
+                return false;
             case "1":
-                return TRUE;
+                return true;
             default:
                 throw new ValidationException(feedFile, line, column, String.format(
                         "binary integer value out of range (was %s, must be 0 or 1)", string));
@@ -392,6 +390,18 @@ abstract class TableValidator<T> implements Iterable<T> {
         } catch (Exception e) {
             throw new ValidationException(feedFile, line, column, e);
         }
+    }
+
+    private Optional<Boolean> deduplicateOptionalBoolean(boolean b) {
+        return (deduplicator != null) ? deduplicator.deduplicateOptionalBoolean(b) : of(b);
+    }
+
+    private Optional<Double> deduplicateOptionalDouble(double d) {
+        return (deduplicator != null) ? deduplicator.deduplicateOptionalDouble(d) : of(d);
+    }
+
+    private Optional<Integer> deduplicateOptionalInteger(int i) {
+        return (deduplicator != null) ? deduplicator.deduplicateOptionalInteger(i) : of(i);
     }
 
     private String deduplicateString(String s) {

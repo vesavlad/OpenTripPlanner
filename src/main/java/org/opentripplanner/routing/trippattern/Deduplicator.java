@@ -27,6 +27,8 @@ import java.util.Map;
  */
 public class Deduplicator implements Serializable {
     private static final Optional<String> ABSENT = Optional.absent();
+    private static final Optional<Boolean> FALSE = Optional.of(false);
+    private static final Optional<Boolean> TRUE = Optional.of(true);
     private static final long serialVersionUID = 20141020L;
 
     private final Map<IntArray, IntArray> canonicalIntArrays = Maps.newHashMap();
@@ -34,6 +36,8 @@ public class Deduplicator implements Serializable {
     private final Map<String, Optional<String>> canonicalOptionalStrings = Maps.newHashMap();
     private final Map<BitSet, BitSet> canonicalBitSets = Maps.newHashMap();
     private final Map<StringArray, StringArray> canonicalStringArrays = Maps.newHashMap();
+    private final Map<Integer, Optional<Integer>> canonicalOptionalIntegers = Maps.newHashMap();
+    private final Map<Double, Optional<Double>> canonicalOptionalDoubles = Maps.newHashMap();
 
     /** Free up any memory used by the deduplicator. */
     public synchronized void reset() {
@@ -42,6 +46,8 @@ public class Deduplicator implements Serializable {
         canonicalOptionalStrings.clear();
         canonicalBitSets.clear();
         canonicalStringArrays.clear();
+        canonicalOptionalIntegers.clear();
+        canonicalOptionalDoubles.clear();
     }
 
     /** Used to deduplicate time and stop sequence arrays. The same times may occur in many trips. */
@@ -94,6 +100,28 @@ public class Deduplicator implements Serializable {
             canonicalStringArrays.put(canonical, canonical);
         }
         return canonical.array;
+    }
+
+    public synchronized Optional<Integer> deduplicateOptionalInteger(int original) {
+        Optional<Integer> canonical = canonicalOptionalIntegers.get(original);
+        if (canonical == null) {
+            canonical = Optional.of(original);
+            canonicalOptionalIntegers.put(canonical.get(), canonical);
+        }
+        return canonical;
+    }
+
+    public synchronized Optional<Double> deduplicateOptionalDouble(double original) {
+        Optional<Double> canonical = canonicalOptionalDoubles.get(original);
+        if (canonical == null) {
+            canonical = Optional.of(original);
+            canonicalOptionalDoubles.put(canonical.get(), canonical);
+        }
+        return canonical;
+    }
+
+    public synchronized Optional<Boolean> deduplicateOptionalBoolean(boolean original) {
+        return original ? TRUE : FALSE;
     }
 
     /** A wrapper for a primitive int array. This is insane but necessary in Java. */

@@ -32,13 +32,13 @@ public class Calendar implements Serializable {
 
     public Calendar(CalendarValidator validator) {
         service_id = validator.requiredString("service_id");
-        monday = validator.requiredBool("monday");
-        tuesday = validator.requiredBool("tuesday");
-        wednesday = validator.requiredBool("wednesday");
-        thursday = validator.requiredBool("thursday");
-        friday = validator.requiredBool("friday");
-        saturday = validator.requiredBool("saturday");
-        sunday = validator.requiredBool("sunday");
+        monday = validator.requiredBoolean("monday");
+        tuesday = validator.requiredBoolean("tuesday");
+        wednesday = validator.requiredBoolean("wednesday");
+        thursday = validator.requiredBoolean("thursday");
+        friday = validator.requiredBoolean("friday");
+        saturday = validator.requiredBoolean("saturday");
+        sunday = validator.requiredBoolean("sunday");
         start_date = validator.requiredDate("start_date");
         end_date = validator.requiredDate("end_date");
     }
