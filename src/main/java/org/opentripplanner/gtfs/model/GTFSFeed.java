@@ -17,6 +17,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.mapdb.BTreeMap;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
@@ -89,7 +90,7 @@ public class GTFSFeed {
     public final Map<String, Frequency>     frequencies;
     public final Map<Tuple2, Transfer>      transfers;
     public final Optional<FeedInfo>         feed_info;
-    public final List<ValidationException>  validation_exceptions;
+    public final Set<ValidationException>   validation_exceptions;
 
     public GTFSFeed(String file, Deduplicator dedup) {
         final Map<String, Agency>        agencyMap        = Maps.newHashMap();
@@ -101,10 +102,10 @@ public class GTFSFeed {
         final Map<String, FareRule>      fareRuleMap      = Maps.newHashMap();
         final Map<String, Frequency>     frequencyMap     = Maps.newHashMap();
         final Optional<FeedInfo>         feedInfoOptional                    ;
-        final List<ValidationException>  validationExceptionList             ;
+        final Set<ValidationException>   validationExceptionSet              ;
 
-        List<ValidationException> unsynchronizedList = Lists.newArrayList();
-        validationExceptionList = Collections.synchronizedList(unsynchronizedList);
+        Set<ValidationException> unsynchronizedSet = Sets.newHashSet();
+        validationExceptionSet = Collections.synchronizedSet(unsynchronizedSet);
 
         LOG.info("Loading GTFS feed");
 
@@ -133,7 +134,7 @@ public class GTFSFeed {
 
                                 put(agencyMap, agency.agency_id.get(), agency, AGENCY);
                             } catch (ValidationException validationException) {
-                                validationExceptionList.add(validationException);
+                                validationExceptionSet.add(validationException);
                             }
                         }
                     }
@@ -156,7 +157,7 @@ public class GTFSFeed {
 
                             put(stopMap, k, stop, STOPS);
                         } catch (ValidationException validationException) {
-                            validationExceptionList.add(validationException);
+                            validationExceptionSet.add(validationException);
                         }
                     }
 
@@ -177,7 +178,7 @@ public class GTFSFeed {
 
                             put(routeMap, k, route, ROUTES);
                         } catch (ValidationException validationException) {
-                            validationExceptionList.add(validationException);
+                            validationExceptionSet.add(validationException);
                         }
                     }
 
@@ -198,7 +199,7 @@ public class GTFSFeed {
 
                             put(tripMap, k, trip, TRIPS);
                         } catch (ValidationException validationException) {
-                            validationExceptionList.add(validationException);
+                            validationExceptionSet.add(validationException);
                         }
                     }
 
@@ -219,7 +220,7 @@ public class GTFSFeed {
 
                             put(stop_times_db, k, stopTime, STOP_TIMES);
                         } catch (ValidationException validationException) {
-                            validationExceptionList.add(validationException);
+                            validationExceptionSet.add(validationException);
                         }
                     }
 
@@ -242,7 +243,7 @@ public class GTFSFeed {
 
                                 put(calendarMap, k, calendar, CALENDAR);
                             } catch (ValidationException validationException) {
-                                validationExceptionList.add(validationException);
+                                validationExceptionSet.add(validationException);
                             }
                         }
                     }
@@ -267,7 +268,7 @@ public class GTFSFeed {
 
                                 put(calendar_dates_db, k, calendarDate, CALENDAR_DATES);
                             } catch (ValidationException validationException) {
-                                validationExceptionList.add(validationException);
+                                validationExceptionSet.add(validationException);
                             }
                         }
                     }
@@ -292,7 +293,7 @@ public class GTFSFeed {
 
                                 put(fareAttributeMap, k, fareAttribute, FARE_ATTRIBUTES);
                             } catch (ValidationException validationException) {
-                                validationExceptionList.add(validationException);
+                                validationExceptionSet.add(validationException);
                             }
                         }
                     }
@@ -316,7 +317,7 @@ public class GTFSFeed {
 
                                 put(fareRuleMap, k, fareRule, FARE_RULES);
                             } catch (ValidationException validationException) {
-                                validationExceptionList.add(validationException);
+                                validationExceptionSet.add(validationException);
                             }
                         }
                     }
@@ -340,7 +341,7 @@ public class GTFSFeed {
 
                                 put(shapes_db, k, shape, SHAPES);
                             } catch (ValidationException validationException) {
-                                validationExceptionList.add(validationException);
+                                validationExceptionSet.add(validationException);
                             }
                         }
                     }
@@ -364,7 +365,7 @@ public class GTFSFeed {
 
                                 put(frequencyMap, k, frequency, FREQUENCIES);
                             } catch (ValidationException validationException) {
-                                validationExceptionList.add(validationException);
+                                validationExceptionSet.add(validationException);
                             }
                         }
                     }
@@ -388,7 +389,7 @@ public class GTFSFeed {
 
                                 put(transfers_db, k, transfer, TRANSFERS);
                             } catch (ValidationException validationException) {
-                                validationExceptionList.add(validationException);
+                                validationExceptionSet.add(validationException);
                             }
                         }
                     }
@@ -443,7 +444,7 @@ public class GTFSFeed {
 
         LOG.info("Loaded GTFS feed");
 
-        validation_exceptions = Collections.unmodifiableList(unsynchronizedList);
+        validation_exceptions = Collections.unmodifiableSet(unsynchronizedSet);
         feed_info = feedInfoOptional;
         transfers = Collections.unmodifiableMap(transfers_db);
         frequencies = Collections.unmodifiableMap(frequencyMap);
@@ -469,6 +470,8 @@ public class GTFSFeed {
             for (ValidationException validationException : validation_exceptions) {
                 LOG.error("This error occurred while importing the GTFS feed", validationException);
             }
+
+            LOG.error("There were " + validation_exceptions.size() + " errors");
         }
         LOG.info("Finding trip patterns");
 

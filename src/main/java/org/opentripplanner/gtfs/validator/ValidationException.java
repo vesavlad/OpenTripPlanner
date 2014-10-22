@@ -18,6 +18,9 @@ import org.opentripplanner.gtfs.format.FeedFile;
 
 import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Optional.fromNullable;
+import static java.lang.System.identityHashCode;
+import static java.util.Arrays.deepEquals;
+import static java.util.Arrays.deepHashCode;
 
 public class ValidationException extends RuntimeException {
     final public FeedFile feedFile;
@@ -61,5 +64,60 @@ public class ValidationException extends RuntimeException {
 
         stringBuilder.append(": ");
         return stringBuilder.append(string).toString();
+    }
+
+    @Override
+    public int hashCode() {
+        final int hash1 = identityHashCode(feedFile);
+        final int hash2 = line;
+        final int hash3 = column.hashCode();
+
+        final Throwable cause = getCause();
+        final int hash4 = cause != null ? cause.hashCode() : 0;
+
+        final String message = getMessage();
+        final int hash5 = message != null ? message.hashCode() : 0;
+
+        StackTraceElement[] stackTrace = getStackTrace();
+        final int hash6 = stackTrace != null ? deepHashCode(stackTrace) : 0;
+
+        return (3 * hash1) + (5 * hash2) + (7 * hash3) + (11 * hash4) + (13 * hash5) + (17 * hash6);
+    }
+
+    @Override
+    public boolean equals (Object object) {
+        if (object instanceof ValidationException) {
+            ValidationException that = (ValidationException) object;
+
+            if (this.feedFile != that.feedFile) return false;
+            if (this.line != that.line) return false;
+
+            if (!column.equals(that.column)) return false;
+
+            Throwable cause = getCause();
+            if (cause == null) {
+                if (that.getCause() != null) return false;
+            } else {
+                if (!cause.equals(that.getCause())) return false;
+            }
+
+            String message = getMessage();
+            if (message == null) {
+                if (that.getMessage() != null) return false;
+            } else {
+                if (!message.equals(that.getMessage())) return false;
+            }
+
+            StackTraceElement[] stackTrace = getStackTrace();
+            if (stackTrace == null) {
+                if (that.getStackTrace() != null) return false;
+            } else {
+                if (!(deepEquals(stackTrace, that.getStackTrace()))) return false;
+            }
+
+            return true;
+        } else {
+            return false;
+        }
     }
 }
