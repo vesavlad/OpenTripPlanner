@@ -55,8 +55,14 @@ public class GTFSFeed {
             .compressionEnable()
             .make();
 
-    // Map from 2-tuples of (trip_id, stop_sequence) to stoptimes.
+    // Map from 2-tuples of (trip_id, stop_sequence) to stop_times.
     private final BTreeMap<Tuple2, StopTime> stop_times_db = db.getTreeMap("stop_times");
+    // Map from 2-tuples of (service_id, date) to calendar_dates.
+    private final Map<Tuple2, CalendarDate> calendar_dates_db = db.getTreeMap("calendar_dates");
+    // Map from 2-tuples of (shape_id, shape_pt_sequence) to shapes.
+    private final Map<Tuple2, Shape> shapes_db = db.getTreeMap("shapes");
+    // Map from 2-tuples of (from_stop_id, to_stop_id) to transfers.
+    private final Map<Tuple2, Transfer> transfers_db = db.getTreeMap("transfers");
 
     public final Map<String, Agency>        agency;
     public final Map<String, Stop>          stops;
@@ -64,10 +70,10 @@ public class GTFSFeed {
     public final Map<String, Trip>          trips;
     public final Map<Tuple2, StopTime>      stop_times;
     public final Map<String, Calendar>      calendar;
-    public final Map<String, CalendarDate>  calendar_dates;
+    public final Map<Tuple2, CalendarDate>  calendar_dates;
     public final Map<String, FareAttribute> fare_attributes;
     public final Map<String, FareRule>      fare_rules;
-    public final Map<String, Shape>         shapes;
+    public final Map<Tuple2, Shape>         shapes;
     public final Map<String, Frequency>     frequencies;
     public final Map<Tuple2, Transfer>      transfers;
     public final Optional<FeedInfo>         feed_info;
@@ -79,12 +85,9 @@ public class GTFSFeed {
         final Map<String, Route>         routeMap         = Maps.newHashMap();
         final Map<String, Trip>          tripMap          = Maps.newHashMap();
         final Map<String, Calendar>      calendarMap      = Maps.newHashMap();
-        final Map<String, CalendarDate>  calendarDateMap  = Maps.newHashMap();
         final Map<String, FareAttribute> fareAttributeMap = Maps.newHashMap();
         final Map<String, FareRule>      fareRuleMap      = Maps.newHashMap();
-        final Map<String, Shape>         shapeMap         = Maps.newHashMap();
         final Map<String, Frequency>     frequencyMap     = Maps.newHashMap();
-        final Map<Tuple2, Transfer>      transferMap      = Maps.newHashMap();
         final Optional<FeedInfo>         feedInfoOptional                    ;
         final List<ValidationException>  validationExceptionList             ;
 
@@ -248,9 +251,9 @@ public class GTFSFeed {
                         while (iterator.hasNext()) {
                             try {
                                 CalendarDate calendarDate = iterator.next();
-                                String k = calendarDate.service_id;
+                                Tuple2 k = (new Tuple2(calendarDate.service_id, calendarDate.date));
 
-                                calendarDateMap.put(k, calendarDate);
+                                calendar_dates_db.put(k, calendarDate);
                             } catch (ValidationException validationException) {
                                 validationExceptionList.add(validationException);
                             }
@@ -321,9 +324,9 @@ public class GTFSFeed {
                         while (iterator.hasNext()) {
                             try {
                                 Shape shape = iterator.next();
-                                String k = shape.shape_id;
+                                Tuple2 k = (new Tuple2(shape.shape_id, shape.shape_pt_sequence));
 
-                                shapeMap.put(k, shape);
+                                shapes_db.put(k, shape);
                             } catch (ValidationException validationException) {
                                 validationExceptionList.add(validationException);
                             }
@@ -371,7 +374,7 @@ public class GTFSFeed {
                                 Transfer transfer = iterator.next();
                                 Tuple2 k = (new Tuple2(transfer.from_stop_id, transfer.to_stop_id));
 
-                                transferMap.put(k, transfer);
+                                transfers_db.put(k, transfer);
                             } catch (ValidationException validationException) {
                                 validationExceptionList.add(validationException);
                             }
@@ -430,12 +433,12 @@ public class GTFSFeed {
 
         validation_exceptions = Collections.unmodifiableList(unsynchronizedList);
         feed_info = feedInfoOptional;
-        transfers = Collections.unmodifiableMap(transferMap);
+        transfers = Collections.unmodifiableMap(transfers_db);
         frequencies = Collections.unmodifiableMap(frequencyMap);
-        shapes = Collections.unmodifiableMap(shapeMap);
+        shapes = Collections.unmodifiableMap(shapes_db);
         fare_rules = Collections.unmodifiableMap(fareRuleMap);
         fare_attributes = Collections.unmodifiableMap(fareAttributeMap);
-        calendar_dates = Collections.unmodifiableMap(calendarDateMap);
+        calendar_dates = Collections.unmodifiableMap(calendar_dates_db);
         calendar = Collections.unmodifiableMap(calendarMap);
         stop_times = Collections.unmodifiableMap(stop_times_db);
         trips = Collections.unmodifiableMap(tripMap);
