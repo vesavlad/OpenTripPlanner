@@ -14,9 +14,11 @@
 package org.opentripplanner.gtfs.model;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import org.joda.time.LocalDate;
 import org.mapdb.BTreeMap;
@@ -32,6 +34,7 @@ import org.opentripplanner.routing.trippattern.Deduplicator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -525,6 +528,33 @@ public class GTFSFeed {
         LOG.info("Total trips: {}", trips.size());
 
         return tripsForPattern.entrySet();
+    }
+
+    // Bin trips by their block_id.
+    public Multimap<String, String> findBlocks() {
+        HashMultimap<String, String> multimap = HashMultimap.create();
+
+        for (Trip trip : trips.values()) {
+            if (trip.block_id.isPresent()) {
+                String block_id = trip.block_id.get();
+                String trip_id = trip.trip_id;
+
+                if (!block_id.equals("")) {
+                    multimap.put(block_id, trip_id);
+                }
+            }
+        }
+
+        for (Entry<String, Collection<String>> block : multimap.asMap().entrySet()) {
+            if (block.getValue().size() < 2) {
+                LOG.error("Block " + block.getKey() + " contains less than 2 trips");
+            }
+        }
+
+        LOG.info("Total blocks: {}", multimap.keySet().size());
+        LOG.info("Total in-block trips: {}", multimap.values().size());
+
+        return multimap;
     }
 
     public void closeDb() {

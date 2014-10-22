@@ -28,6 +28,7 @@ public class GTFSMain {
     public static void main (String[] args) {
         GTFSFeed feed = new GTFSFeed(INPUT, new Deduplicator());
         feed.findPatterns();
+        feed.findBlocks();
         feed.closeDb();
     }
 
