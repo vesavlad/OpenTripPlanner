@@ -37,7 +37,7 @@ abstract class TableValidator<T> implements Iterable<T> {
     final private FeedFile feedFile;
     final Iterable<Map<String, String>> maps;
     private int line = 1;
-    private String column;
+    String column;
     Map<String, String> row;
 
     TableValidator(FeedFile feedFile, Iterable<Map<String, String>> input, Deduplicator dedup) {

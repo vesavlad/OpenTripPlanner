@@ -35,7 +35,14 @@ public class RouteValidator extends TableValidator<Route> {
                     @Override
                     public Route apply(Map<String, String> row) {
                         RouteValidator.super.row = row;
-                        return new Route(RouteValidator.this);
+                        Route route = new Route(RouteValidator.this);
+                        RouteValidator.super.column = null;
+
+                        if (route.route_short_name.equals("") && route.route_long_name.equals("")) {
+                            throw validationException("route_short_name and route_long_name empty");
+                        }
+
+                        return route;
                     }
                 });
     }

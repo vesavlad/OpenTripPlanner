@@ -18,6 +18,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.joda.time.LocalDate;
 import org.mapdb.BTreeMap;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
@@ -37,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -48,6 +50,7 @@ import static org.opentripplanner.gtfs.format.FeedFile.CALENDAR;
 import static org.opentripplanner.gtfs.format.FeedFile.CALENDAR_DATES;
 import static org.opentripplanner.gtfs.format.FeedFile.FARE_ATTRIBUTES;
 import static org.opentripplanner.gtfs.format.FeedFile.FARE_RULES;
+import static org.opentripplanner.gtfs.format.FeedFile.FEED_INFO;
 import static org.opentripplanner.gtfs.format.FeedFile.FREQUENCIES;
 import static org.opentripplanner.gtfs.format.FeedFile.ROUTES;
 import static org.opentripplanner.gtfs.format.FeedFile.SHAPES;
@@ -117,6 +120,7 @@ public class GTFSFeed {
             if (iterator.hasNext()) {
                 Agency agency = iterator.next();
                 Optional<String> agencyId = agency.agency_id;
+                TimeZone agencyTimezone = agency.agency_timezone;
 
                 if (agencyId.isPresent()) {
                     put(agencyMap, agencyId.get(), agency, AGENCY);
@@ -133,6 +137,10 @@ public class GTFSFeed {
                                 agency = iterator.next();
 
                                 put(agencyMap, agency.agency_id.get(), agency, AGENCY);
+
+                                if (!agencyTimezone.equals(agency.agency_timezone)) {
+                                    throw new ValidationException(AGENCY, 0, "multiple timezones");
+                                }
                             } catch (ValidationException validationException) {
                                 validationExceptionSet.add(validationException);
                             }
@@ -436,6 +444,18 @@ public class GTFSFeed {
             feedInfoOptional = feedValidator.feed_info.isPresent() ?
                     Optional.of(Iterables.getOnlyElement(feedValidator.feed_info.get())) :
                     Optional.<FeedInfo>absent();
+            if (feedInfoOptional.isPresent()) {
+                FeedInfo feedInfo = feedInfoOptional.get();
+
+                if (feedInfo.feed_start_date.isPresent() && feedInfo.feed_end_date.isPresent()) {
+                    LocalDate feed_start_date = feedInfo.feed_start_date.get();
+                    LocalDate feed_end_date = feedInfo.feed_end_date.get();
+
+                    if (feed_start_date.compareTo(feed_end_date) == 1) {
+                        throw new ValidationException(FEED_INFO, 2, "feed starts after it ends");
+                    }
+                }
+            }
             LOG.info("Loaded feed_info.txt");
         } catch (RuntimeException e) {
             LOG.error("Error loading GTFS: {}", e.getMessage());
