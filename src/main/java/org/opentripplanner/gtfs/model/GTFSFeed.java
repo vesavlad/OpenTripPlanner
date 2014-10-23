@@ -83,32 +83,32 @@ public class GTFSFeed {
     // Map from 2-tuples of (from_stop_id, to_stop_id) to transfers.
     private final Map<Tuple2, Transfer> transfers_db = db.getTreeMap("transfers");
 
-    public final Map<String, Agency>               agency;
-    public final Map<String, Stop>                 stops;
-    public final Map<String, Route>                routes;
-    public final Map<String, Trip>                 trips;
-    public final Map<Tuple2, StopTime>             stop_times;
-    public final Map<String, Calendar>             calendar;
-    public final Map<Tuple2, CalendarDate>         calendar_dates;
-    public final Map<String, FareAttribute>        fare_attributes;
-    public final Map<String, Collection<FareRule>> fare_rules;
-    public final Map<Tuple2, Shape>                shapes;
-    public final Map<String, Frequency>            frequencies;
-    public final Map<Tuple2, Transfer>             transfers;
-    public final Optional<FeedInfo>                feed_info;
-    public final Set<ValidationException>          validation_exceptions;
+    public final Map<String, Agency>                agency;
+    public final Map<String, Stop>                  stops;
+    public final Map<String, Route>                 routes;
+    public final Map<String, Trip>                  trips;
+    public final Map<Tuple2, StopTime>              stop_times;
+    public final Map<String, Calendar>              calendar;
+    public final Map<Tuple2, CalendarDate>          calendar_dates;
+    public final Map<String, FareAttribute>         fare_attributes;
+    public final Map<String, Collection<FareRule>>  fare_rules;
+    public final Map<Tuple2, Shape>                 shapes;
+    public final Map<String, Collection<Frequency>> frequencies;
+    public final Map<Tuple2, Transfer>              transfers;
+    public final Optional<FeedInfo>                 feed_info;
+    public final Set<ValidationException>           validation_exceptions;
 
     public GTFSFeed(String file, Deduplicator dedup) {
-        final Map<String, Agency>        agencyMap        = Maps.newHashMap();
-        final Map<String, Stop>          stopMap          = Maps.newHashMap();
-        final Map<String, Route>         routeMap         = Maps.newHashMap();
-        final Map<String, Trip>          tripMap          = Maps.newHashMap();
-        final Map<String, Calendar>      calendarMap      = Maps.newHashMap();
-        final Map<String, FareAttribute> fareAttributeMap = Maps.newHashMap();
-        final Multimap<String, FareRule> fareRuleMap      = HashMultimap.create();
-        final Map<String, Frequency>     frequencyMap     = Maps.newHashMap();
-        final Optional<FeedInfo>         feedInfoOptional                    ;
-        final Set<ValidationException>   validationExceptionSet              ;
+        final Map<String, Agency>         agencyMap        = Maps.newHashMap();
+        final Map<String, Stop>           stopMap          = Maps.newHashMap();
+        final Map<String, Route>          routeMap         = Maps.newHashMap();
+        final Map<String, Trip>           tripMap          = Maps.newHashMap();
+        final Map<String, Calendar>       calendarMap      = Maps.newHashMap();
+        final Map<String, FareAttribute>  fareAttributeMap = Maps.newHashMap();
+        final Multimap<String, FareRule>  fareRuleMap  = HashMultimap.create();
+        final Multimap<String, Frequency> frequencyMap = HashMultimap.create();
+        final Optional<FeedInfo>          feedInfoOptional                    ;
+        final Set<ValidationException>    validationExceptionSet              ;
 
         Set<ValidationException> unsynchronizedSet = Sets.newHashSet();
         validationExceptionSet = Collections.synchronizedSet(unsynchronizedSet);
@@ -116,7 +116,7 @@ public class GTFSFeed {
         LOG.info("Loading GTFS feed");
 
         try (Feed feed = new Feed(file)) {
-            final FeedValidator feedValidator = new FeedValidator(feed,  dedup);
+            final FeedValidator feedValidator = new FeedValidator(feed, dedup);
 
             LOG.info("Loading agency.txt");
             Iterator<Agency> iterator = feedValidator.agency.iterator();
@@ -470,7 +470,7 @@ public class GTFSFeed {
         validation_exceptions = Collections.unmodifiableSet(unsynchronizedSet);
         feed_info = feedInfoOptional;
         transfers = Collections.unmodifiableMap(transfers_db);
-        frequencies = Collections.unmodifiableMap(frequencyMap);
+        frequencies = Collections.unmodifiableMap(frequencyMap.asMap());
         shapes = Collections.unmodifiableMap(shapes_db);
         fare_rules = Collections.unmodifiableMap(fareRuleMap.asMap());
         fare_attributes = Collections.unmodifiableMap(fareAttributeMap);
