@@ -83,20 +83,20 @@ public class GTFSFeed {
     // Map from 2-tuples of (from_stop_id, to_stop_id) to transfers.
     private final Map<Tuple2, Transfer> transfers_db = db.getTreeMap("transfers");
 
-    public final Map<String, Agency>        agency;
-    public final Map<String, Stop>          stops;
-    public final Map<String, Route>         routes;
-    public final Map<String, Trip>          trips;
-    public final Map<Tuple2, StopTime>      stop_times;
-    public final Map<String, Calendar>      calendar;
-    public final Map<Tuple2, CalendarDate>  calendar_dates;
-    public final Map<String, FareAttribute> fare_attributes;
-    public final Map<String, FareRule>      fare_rules;
-    public final Map<Tuple2, Shape>         shapes;
-    public final Map<String, Frequency>     frequencies;
-    public final Map<Tuple2, Transfer>      transfers;
-    public final Optional<FeedInfo>         feed_info;
-    public final Set<ValidationException>   validation_exceptions;
+    public final Map<String, Agency>               agency;
+    public final Map<String, Stop>                 stops;
+    public final Map<String, Route>                routes;
+    public final Map<String, Trip>                 trips;
+    public final Map<Tuple2, StopTime>             stop_times;
+    public final Map<String, Calendar>             calendar;
+    public final Map<Tuple2, CalendarDate>         calendar_dates;
+    public final Map<String, FareAttribute>        fare_attributes;
+    public final Map<String, Collection<FareRule>> fare_rules;
+    public final Map<Tuple2, Shape>                shapes;
+    public final Map<String, Frequency>            frequencies;
+    public final Map<Tuple2, Transfer>             transfers;
+    public final Optional<FeedInfo>                feed_info;
+    public final Set<ValidationException>          validation_exceptions;
 
     public GTFSFeed(String file, Deduplicator dedup) {
         final Map<String, Agency>        agencyMap        = Maps.newHashMap();
@@ -105,7 +105,7 @@ public class GTFSFeed {
         final Map<String, Trip>          tripMap          = Maps.newHashMap();
         final Map<String, Calendar>      calendarMap      = Maps.newHashMap();
         final Map<String, FareAttribute> fareAttributeMap = Maps.newHashMap();
-        final Map<String, FareRule>      fareRuleMap      = Maps.newHashMap();
+        final Multimap<String, FareRule> fareRuleMap      = HashMultimap.create();
         final Map<String, Frequency>     frequencyMap     = Maps.newHashMap();
         final Optional<FeedInfo>         feedInfoOptional                    ;
         final Set<ValidationException>   validationExceptionSet              ;
@@ -472,7 +472,7 @@ public class GTFSFeed {
         transfers = Collections.unmodifiableMap(transfers_db);
         frequencies = Collections.unmodifiableMap(frequencyMap);
         shapes = Collections.unmodifiableMap(shapes_db);
-        fare_rules = Collections.unmodifiableMap(fareRuleMap);
+        fare_rules = Collections.unmodifiableMap(fareRuleMap.asMap());
         fare_attributes = Collections.unmodifiableMap(fareAttributeMap);
         calendar_dates = Collections.unmodifiableMap(calendar_dates_db);
         calendar = Collections.unmodifiableMap(calendarMap);
@@ -559,6 +559,13 @@ public class GTFSFeed {
 
     public void closeDb() {
         db.close();
+    }
+
+    private static void put(Multimap map, String key, Object value, FeedFile feedFile) {
+        if (map.put(key, value) != true) {
+            String message = String.format("multiple occurrences of ID %s point to %s", key, value);
+            throw new ValidationException(feedFile, 0, message);
+        }
     }
 
     private static void put(Map map, Tuple2 key, Object value, FeedFile feedFile) {
