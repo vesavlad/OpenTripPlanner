@@ -15,7 +15,7 @@ package org.opentripplanner.gtfs.validator.table;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
-import org.opentripplanner.gtfs.model.Shape;
+import org.opentripplanner.gtfs.model.ShapePoint;
 import org.opentripplanner.routing.trippattern.Deduplicator;
 
 import java.util.Iterator;
@@ -23,19 +23,19 @@ import java.util.Map;
 
 import static org.opentripplanner.gtfs.format.FeedFile.SHAPES;
 
-public class ShapeValidator extends TableValidator<Shape> {
-    public ShapeValidator(Iterable<Map<String, String>> input, Deduplicator dedup) {
+public class ShapePointValidator extends TableValidator<ShapePoint> {
+    public ShapePointValidator(Iterable<Map<String, String>> input, Deduplicator dedup) {
         super(SHAPES, input, dedup);
     }
 
     @Override
-    public Iterator<Shape> iterator() {
+    public Iterator<ShapePoint> iterator() {
         return Iterators.transform(maps.iterator(),
-                new Function<Map<String, String>, Shape>() {
+                new Function<Map<String, String>, ShapePoint>() {
                     @Override
-                    public Shape apply(Map<String, String> row) {
-                        ShapeValidator.super.row = row;
-                        return new Shape(ShapeValidator.this);
+                    public ShapePoint apply(Map<String, String> row) {
+                        ShapePointValidator.super.row = row;
+                        return new ShapePoint(ShapePointValidator.this);
                     }
                 });
     }

@@ -24,7 +24,7 @@ import org.opentripplanner.gtfs.model.FareRule;
 import org.opentripplanner.gtfs.model.FeedInfo;
 import org.opentripplanner.gtfs.model.Frequency;
 import org.opentripplanner.gtfs.model.Route;
-import org.opentripplanner.gtfs.model.Shape;
+import org.opentripplanner.gtfs.model.ShapePoint;
 import org.opentripplanner.gtfs.model.Stop;
 import org.opentripplanner.gtfs.model.StopTime;
 import org.opentripplanner.gtfs.model.Transfer;
@@ -38,7 +38,7 @@ import org.opentripplanner.gtfs.validator.table.FareRuleValidator;
 import org.opentripplanner.gtfs.validator.table.FeedInfoValidator;
 import org.opentripplanner.gtfs.validator.table.FrequencyValidator;
 import org.opentripplanner.gtfs.validator.table.RouteValidator;
-import org.opentripplanner.gtfs.validator.table.ShapeValidator;
+import org.opentripplanner.gtfs.validator.table.ShapePointValidator;
 import org.opentripplanner.gtfs.validator.table.StopTimeValidator;
 import org.opentripplanner.gtfs.validator.table.StopValidator;
 import org.opentripplanner.gtfs.validator.table.TransferValidator;
@@ -73,7 +73,7 @@ public class FeedValidator {
     final public Optional<Iterable<CalendarDate>> calendar_dates;
     final public Optional<Iterable<FareAttribute>> fare_attributes;
     final public Optional<Iterable<FareRule>> fare_rules;
-    final public Optional<Iterable<Shape>> shapes;
+    final public Optional<Iterable<ShapePoint>> shapes;
     final public Optional<Iterable<Frequency>> frequencies;
     final public Optional<Iterable<Transfer>> transfers;
     final public Optional<Iterable<FeedInfo>> feed_info;
@@ -140,13 +140,13 @@ public class FeedValidator {
         }
     }
 
-    private Optional<Iterable<Shape>> shapes(Feed feed) {
+    private Optional<Iterable<ShapePoint>> shapes(Feed feed) {
         Iterable<Map<String, String>> iterable = feed.get(SHAPES.toString());
 
         if (iterable == null) {
             return Optional.absent();
         } else {
-            return Optional.<Iterable<Shape>>of(new ShapeValidator(iterable, deduplicator));
+            return Optional.<Iterable<ShapePoint>>of(new ShapePointValidator(iterable, deduplicator));
         }
     }
 

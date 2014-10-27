@@ -21,7 +21,7 @@ import org.opentripplanner.gtfs.model.Agency;
 import org.opentripplanner.gtfs.model.CalendarDate;
 import org.opentripplanner.gtfs.model.FeedInfo;
 import org.opentripplanner.gtfs.model.Route;
-import org.opentripplanner.gtfs.model.Shape;
+import org.opentripplanner.gtfs.model.ShapePoint;
 import org.opentripplanner.gtfs.model.Stop;
 import org.opentripplanner.gtfs.model.StopTime;
 import org.opentripplanner.gtfs.model.Transfer;
@@ -237,18 +237,18 @@ public class RoundTrip {
                 try {
                     csvWriter.writeRecord(new String[]{"shape_id", "shape_pt_sequence",
                             "shape_pt_lat", "shape_pt_lon", "shape_dist_traveled"});
-                    for (Shape shape : feedValidator.shapes.get()) {
+                    for (ShapePoint point : feedValidator.shapes.get()) {
                         final String fields[] = new String[5];
-                        fields[0] = shape.shape_id;
-                        fields[1] = String.valueOf(shape.shape_pt_sequence);
-                        fields[2] = String.valueOf(Math.IEEEremainder(shape.shape_pt_lat, 1) == 0 ?
-                                    String.format("%.0f", shape.shape_pt_lat) :
-                                    String.valueOf(shape.shape_pt_lat));
-                        fields[3] = String.valueOf(Math.IEEEremainder(shape.shape_pt_lon, 1) == 0 ?
-                                    String.format("%.0f", shape.shape_pt_lon) :
-                                    String.valueOf(shape.shape_pt_lon));
-                        fields[4] = shape.shape_dist_traveled.isPresent() ?
-                                    String.format("%.0f", shape.shape_dist_traveled.get()) : "";
+                        fields[0] = point.shape_id;
+                        fields[1] = String.valueOf(point.shape_pt_sequence);
+                        fields[2] = String.valueOf(Math.IEEEremainder(point.shape_pt_lat, 1) == 0 ?
+                                    String.format("%.0f", point.shape_pt_lat) :
+                                    String.valueOf(point.shape_pt_lat));
+                        fields[3] = String.valueOf(Math.IEEEremainder(point.shape_pt_lon, 1) == 0 ?
+                                    String.format("%.0f", point.shape_pt_lon) :
+                                    String.valueOf(point.shape_pt_lon));
+                        fields[4] = point.shape_dist_traveled.isPresent() ?
+                                    String.format("%.0f", point.shape_dist_traveled.get()) : "";
                         csvWriter.writeRecord(fields);
                     }
                 } catch (Exception e) {

@@ -15,6 +15,7 @@ package org.opentripplanner.gtfs.model;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -24,7 +25,6 @@ import org.joda.time.LocalDate;
 import org.mapdb.BTreeMap;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
-import org.mapdb.Fun;
 import org.mapdb.Fun.Tuple2;
 import org.opentripplanner.gtfs.format.Feed;
 import org.opentripplanner.gtfs.format.FeedFile;
@@ -47,6 +47,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import static org.mapdb.Fun.HI;
+import static org.mapdb.Fun.t2;
 import static org.opentripplanner.common.LoggingUtil.human;
 import static org.opentripplanner.gtfs.format.FeedFile.AGENCY;
 import static org.opentripplanner.gtfs.format.FeedFile.CALENDAR;
@@ -79,7 +81,7 @@ public class GTFSFeed {
     // Map from 2-tuples of (service_id, date) to calendar_dates.
     private final Map<Tuple2, CalendarDate> calendar_dates_db = db.getTreeMap("calendar_dates");
     // Map from 2-tuples of (shape_id, shape_pt_sequence) to shapes.
-    private final Map<Tuple2, Shape> shapes_db = db.getTreeMap("shapes");
+    private final BTreeMap<Tuple2, ShapePoint> shapes_db = db.getTreeMap("shapes");
     // Map from 2-tuples of (from_stop_id, to_stop_id) to transfers.
     private final Map<Tuple2, Transfer> transfers_db = db.getTreeMap("transfers");
 
@@ -92,7 +94,7 @@ public class GTFSFeed {
     public final Map<Tuple2, CalendarDate>          calendar_dates;
     public final Map<String, FareAttribute>         fare_attributes;
     public final Map<String, Collection<FareRule>>  fare_rules;
-    public final Map<Tuple2, Shape>                 shapes;
+    public final Map<Tuple2, ShapePoint>            shapes;
     public final Map<String, Collection<Frequency>> frequencies;
     public final Map<Tuple2, Transfer>              transfers;
     public final Optional<FeedInfo>                 feed_info;
@@ -343,14 +345,14 @@ public class GTFSFeed {
                     LOG.info("Loading shapes.txt");
 
                     if (feedValidator.shapes.isPresent()) {
-                        Iterator<Shape> iterator = feedValidator.shapes.get().iterator();
+                        Iterator<ShapePoint> iterator = feedValidator.shapes.get().iterator();
 
                         while (iterator.hasNext()) {
                             try {
-                                Shape shape = iterator.next();
-                                Tuple2 k = (new Tuple2(shape.shape_id, shape.shape_pt_sequence));
+                                ShapePoint point = iterator.next();
+                                Tuple2 k = (new Tuple2(point.shape_id, point.shape_pt_sequence));
 
-                                put(shapes_db, k, shape, SHAPES);
+                                put(shapes_db, k, point, SHAPES);
                             } catch (ValidationException validationException) {
                                 validationExceptionSet.add(validationException);
                             }
@@ -483,6 +485,16 @@ public class GTFSFeed {
         agency = Collections.unmodifiableMap(agencyMap);
     }
 
+    public List<StopTime> getStopTimesForTrip(String trip_id) {
+        Collection<StopTime> st = stop_times_db.subMap(t2(trip_id, null), t2(trip_id, HI)).values();
+        return ImmutableList.copyOf(st);
+    }
+
+    public List<ShapePoint> getShapeForTrip(String trip_id) {
+        Collection<ShapePoint> sp = shapes_db.subMap(t2(trip_id, null), t2(trip_id, HI)).values();
+        return ImmutableList.copyOf(sp);
+    }
+
     // Bin all trips by the sequence of stops they visit.
     public Set<Entry<List<String>, List<String>>> findPatterns() {
         if (validation_exceptions.isEmpty()) {
@@ -505,14 +517,9 @@ public class GTFSFeed {
             if (++n % 100000 == 0) {
                 LOG.info("trip {}", human(n));
             }
-            Map<Fun.Tuple2, StopTime> tripStopTimes =
-                (stop_times_db).subMap(
-                    Fun.t2(trip_id, null),
-                    Fun.t2(trip_id, Fun.HI)
-                );
             List<String> stops = Lists.newArrayList();
             // In-order traversal of StopTimes within this trip. The 2-tuple keys determine ordering.
-            for (StopTime stopTime : tripStopTimes.values()) {
+            for (StopTime stopTime : getStopTimesForTrip(trip_id)) {
                 stops.add(stopTime.stop_id);
             }
             // Fetch or create the tripId list for this stop pattern, then add the current trip to that list.

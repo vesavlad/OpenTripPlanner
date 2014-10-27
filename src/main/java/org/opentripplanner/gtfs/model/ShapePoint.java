@@ -14,18 +14,18 @@
 package org.opentripplanner.gtfs.model;
 
 import com.google.common.base.Optional;
-import org.opentripplanner.gtfs.validator.table.ShapeValidator;
+import org.opentripplanner.gtfs.validator.table.ShapePointValidator;
 
 import java.io.Serializable;
 
-public class Shape implements Serializable {
+public class ShapePoint implements Serializable {
     final public String shape_id;
     final public double shape_pt_lat;
     final public double shape_pt_lon;
     final public int shape_pt_sequence;
     final public Optional<Double> shape_dist_traveled;
 
-    public Shape(ShapeValidator validator) {
+    public ShapePoint(ShapePointValidator validator) {
         shape_id = validator.requiredString("shape_id");
         shape_pt_lat = validator.requiredDouble("shape_pt_lat", -90, 90);
         shape_pt_lon = validator.requiredDouble("shape_pt_lon", -180, 180);
