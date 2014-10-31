@@ -93,13 +93,16 @@ public abstract class Nonterminal {
     /* wrap terminals in trivial nonterminals to provide them with/to expression builder methods */
 
     private static Nonterminal wrap0(Object o) {
-        if (o instanceof Integer)
+        if (o instanceof Byte) {
+            return new NTTrivial((Byte) o);
+        } else if (o instanceof Integer) {
             return new NTTrivial((Integer) o);
-        else if (o instanceof Nonterminal)
+        } else if (o instanceof Nonterminal) {
             return (Nonterminal) o;
-        else
-            throw new RuntimeException(
-                    "attempted to build an NFA out of something that was not a terminal or a nonterminal");
+        } else {
+            throw new RuntimeException("attempted to build an NFA out of something that was not a" +
+                    " terminal or a nonterminal");
+        }
     }
 
     private static Nonterminal[] wrap(Object... objects) {

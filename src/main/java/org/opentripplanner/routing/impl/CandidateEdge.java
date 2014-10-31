@@ -38,7 +38,7 @@ public class CandidateEdge {
     private final int numEdgeCoords;
 
     /** Whether point is located at a platform. */
-    private final int platform;
+    private final byte platform;
 
     /** Preference value passed in. */
     private final double preference;
@@ -199,8 +199,8 @@ public class CandidateEdge {
      * Get the platform mask for the given mode. 
      * This is compatible with the bit flags from StreetEdge.getStreetClass(). 
      */
-    private int calcPlatform(TraverseModeSet mode) {
-        int out = 0;
+    private byte calcPlatform(TraverseModeSet mode) {
+        byte out = 0;
         if (mode.getTrainish()) {
             out |= StreetEdge.CLASS_TRAIN_PLATFORM;
         }

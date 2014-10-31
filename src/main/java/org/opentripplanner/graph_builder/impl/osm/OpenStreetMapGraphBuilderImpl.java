@@ -955,7 +955,7 @@ public class OpenStreetMapGraphBuilderImpl implements GraphBuilder {
             street.setCarSpeed(carSpeed);
 
             String highway = way.getTag("highway");
-            int cls;
+            byte cls;
             if ("crossing".equals(highway) && !way.isTag("bicycle", "designated")) {
                 cls = StreetEdge.CLASS_CROSSING;
             } else if ("footway".equals(highway) && way.isTag("footway", "crossing")

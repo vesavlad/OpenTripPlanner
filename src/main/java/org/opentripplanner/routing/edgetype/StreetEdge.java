@@ -36,6 +36,7 @@ import org.opentripplanner.routing.util.ElevationUtils;
 import org.opentripplanner.routing.vertextype.IntersectionVertex;
 import org.opentripplanner.routing.vertextype.StreetVertex;
 import org.opentripplanner.util.BitSetUtils;
+import org.opentripplanner.util.IntPackedBytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,31 +56,36 @@ public class StreetEdge extends Edge implements Cloneable {
     private static final long serialVersionUID = 1L;
 
     /* TODO combine these with OSM highway= flags? */
-    public static final int CLASS_STREET = 3;
-    public static final int CLASS_CROSSING = 4;
-    public static final int CLASS_OTHERPATH = 5;
-    public static final int CLASS_OTHER_PLATFORM = 8;
-    public static final int CLASS_TRAIN_PLATFORM = 16;
-    public static final int ANY_PLATFORM_MASK = 24;
-    public static final int CROSSING_CLASS_MASK = 7; // ignore platform
-    public static final int CLASS_LINK = 32; // on/offramps; OSM calls them "links"
+    public static final byte CLASS_STREET = 3;
+    public static final byte CLASS_CROSSING = 4;
+    public static final byte CLASS_OTHERPATH = 5;
+    public static final byte CLASS_OTHER_PLATFORM = 8;
+    public static final byte CLASS_TRAIN_PLATFORM = 16;
+    public static final byte ANY_PLATFORM_MASK = 24;
+    public static final byte CROSSING_CLASS_MASK = 7; // ignore platform
+    public static final byte CLASS_LINK = 32; // on/offramps; OSM calls them "links"
 
     private static final double GREENWAY_SAFETY_FACTOR = 0.1;
 
     // TODO(flamholz): do something smarter with the car speed here.
     public static final float DEFAULT_CAR_SPEED = 11.2f;
 
-    /** If you have more than 8 flags, increase flags to short or int */
-    private static final int BACK_FLAG_INDEX = 0;
-    private static final int ROUNDABOUT_FLAG_INDEX = 1;
-    private static final int HASBOGUSNAME_FLAG_INDEX = 2;
-    private static final int NOTHRUTRAFFIC_FLAG_INDEX = 3;
-    private static final int STAIRS_FLAG_INDEX = 4;
-    private static final int SLOPEOVERRIDE_FLAG_INDEX = 5;
-    private static final int WHEELCHAIR_ACCESSIBLE_FLAG_INDEX = 6;
+    /** There can be at most 8 flags in the present version of the code, with the range as [8,16) */
+    private static final byte BACK_FLAG_INDEX = 8;
+    private static final byte ROUNDABOUT_FLAG_INDEX = 9;
+    private static final byte HASBOGUSNAME_FLAG_INDEX = 10;
+    private static final byte NOTHRUTRAFFIC_FLAG_INDEX = 11;
+    private static final byte STAIRS_FLAG_INDEX = 12;
+    private static final byte SLOPEOVERRIDE_FLAG_INDEX = 13;
+    private static final byte WHEELCHAIR_ACCESSIBLE_FLAG_INDEX = 14;
 
-    /** back, roundabout, stairs, ... */
-    private byte flags;
+    /**
+     * Byte 0: Street class (see above)
+     * Byte 1: Flags (see above)
+     * Byte 2: In angle
+     * Byte 3: Out angle
+     */
+    private int packed = CLASS_OTHERPATH;
 
     /**
      * Length is stored internally as 32-bit fixed-point (millimeters). This allows edges of up to ~2100km.
@@ -101,22 +107,11 @@ public class StreetEdge extends Edge implements Cloneable {
 
     private StreetTraversalPermission permission;
 
-    private int streetClass = CLASS_OTHERPATH;
-    
     /**
      * The speed (meters / sec) at which an automobile can traverse
      * this street segment.
      */
     private float carSpeed;
-
-    /**
-     * The angle at the start of the edge geometry.
-     * Internal representation is -180 to +179 integer degrees mapped to -128 to +127 (brads)
-     */
-    private byte inAngle;
-
-    /** The angle at the start of the edge geometry. Internal representation like that of inAngle. */
-    private byte outAngle;
 
     public StreetEdge(StreetVertex v1, StreetVertex v2, LineString geometry,
                       String name, double length,
@@ -146,14 +141,12 @@ public class StreetEdge extends Edge implements Cloneable {
                 // FIXME Use only North as a reference, not a mix of North and South!
                 // Range restriction happens automatically due to Java signed overflow behavior.
                 // 180 degrees exists as a negative rather than a positive due to the integer range.
-                double angleRadians = DirectionUtils.getLastAngle(geometry);
-                outAngle = (byte) Math.round(angleRadians * 128 / Math.PI + 128);
-                angleRadians = DirectionUtils.getFirstAngle(geometry);
-                inAngle = (byte) Math.round(angleRadians * 128 / Math.PI + 128);
+                setOutAngle(DirectionUtils.getLastAngle(geometry));
+                setInAngle(DirectionUtils.getFirstAngle(geometry));
             } catch (IllegalArgumentException iae) {
                 LOG.error("exception while determining street edge angles. setting to zero. there is probably something wrong with this street segment's geometry.");
-                inAngle = 0;
-                outAngle = 0;
+                setInAngle(0);
+                setOutAngle(0);
             }
         }
     }
@@ -602,11 +595,11 @@ public class StreetEdge extends Edge implements Cloneable {
 	}
 
 	public boolean isWheelchairAccessible() {
-		return BitSetUtils.get(flags, WHEELCHAIR_ACCESSIBLE_FLAG_INDEX);
+		return BitSetUtils.get(packed, WHEELCHAIR_ACCESSIBLE_FLAG_INDEX);
 	}
 
 	public void setWheelchairAccessible(boolean wheelchairAccessible) {
-        flags = BitSetUtils.set(flags, WHEELCHAIR_ACCESSIBLE_FLAG_INDEX, wheelchairAccessible);
+        packed = BitSetUtils.set(packed, WHEELCHAIR_ACCESSIBLE_FLAG_INDEX, wheelchairAccessible);
 	}
 
 	public StreetTraversalPermission getPermission() {
@@ -617,12 +610,12 @@ public class StreetEdge extends Edge implements Cloneable {
 		this.permission = permission;
 	}
 
-	public int getStreetClass() {
-		return streetClass;
+	public byte getStreetClass() {
+		return getByte0();
 	}
 
-	public void setStreetClass(int streetClass) {
-		this.streetClass = streetClass;
+	public void setStreetClass(byte streetClass) {
+		setByte0(streetClass);
 	}
 
 	/**
@@ -630,46 +623,46 @@ public class StreetEdge extends Edge implements Cloneable {
 	 * data. Does NOT mean fromv/tov are reversed.
 	 */
 	public boolean isBack() {
-	    return BitSetUtils.get(flags, BACK_FLAG_INDEX);
+	    return BitSetUtils.get(packed, BACK_FLAG_INDEX);
 	}
 
 	public void setBack(boolean back) {
-            flags = BitSetUtils.set(flags, BACK_FLAG_INDEX, back);
+            packed = BitSetUtils.set(packed, BACK_FLAG_INDEX, back);
 	}
 
 	public boolean isRoundabout() {
-            return BitSetUtils.get(flags, ROUNDABOUT_FLAG_INDEX);
+            return BitSetUtils.get(packed, ROUNDABOUT_FLAG_INDEX);
 	}
 
 	public void setRoundabout(boolean roundabout) {
-	    flags = BitSetUtils.set(flags, ROUNDABOUT_FLAG_INDEX, roundabout);
+	    packed = BitSetUtils.set(packed, ROUNDABOUT_FLAG_INDEX, roundabout);
 	}
 
 	public boolean hasBogusName() {
-	    return BitSetUtils.get(flags, HASBOGUSNAME_FLAG_INDEX);
+	    return BitSetUtils.get(packed, HASBOGUSNAME_FLAG_INDEX);
 	}
 
 	public void setHasBogusName(boolean hasBogusName) {
-	    flags = BitSetUtils.set(flags, HASBOGUSNAME_FLAG_INDEX, hasBogusName);
+	    packed = BitSetUtils.set(packed, HASBOGUSNAME_FLAG_INDEX, hasBogusName);
 	}
 
 	public boolean isNoThruTraffic() {
-            return BitSetUtils.get(flags, NOTHRUTRAFFIC_FLAG_INDEX);
+            return BitSetUtils.get(packed, NOTHRUTRAFFIC_FLAG_INDEX);
 	}
 
 	public void setNoThruTraffic(boolean noThruTraffic) {
-	    flags = BitSetUtils.set(flags, NOTHRUTRAFFIC_FLAG_INDEX, noThruTraffic);
+	    packed = BitSetUtils.set(packed, NOTHRUTRAFFIC_FLAG_INDEX, noThruTraffic);
 	}
 
 	/**
 	 * This street is a staircase
 	 */
 	public boolean isStairs() {
-            return BitSetUtils.get(flags, STAIRS_FLAG_INDEX);
+            return BitSetUtils.get(packed, STAIRS_FLAG_INDEX);
 	}
 
 	public void setStairs(boolean stairs) {
-	    flags = BitSetUtils.set(flags, STAIRS_FLAG_INDEX, stairs);
+	    packed = BitSetUtils.set(packed, STAIRS_FLAG_INDEX, stairs);
 	}
 
 	public float getCarSpeed() {
@@ -681,11 +674,11 @@ public class StreetEdge extends Edge implements Cloneable {
 	}
 
 	public boolean isSlopeOverride() {
-	    return BitSetUtils.get(flags, SLOPEOVERRIDE_FLAG_INDEX);
+	    return BitSetUtils.get(packed, SLOPEOVERRIDE_FLAG_INDEX);
 	}
 
 	public void setSlopeOverride(boolean slopeOverride) {
-	    flags = BitSetUtils.set(flags, SLOPEOVERRIDE_FLAG_INDEX, slopeOverride);
+	    packed = BitSetUtils.set(packed, SLOPEOVERRIDE_FLAG_INDEX, slopeOverride);
 	}
 
     /**
@@ -693,12 +686,56 @@ public class StreetEdge extends Edge implements Cloneable {
      * TODO change everything to clockwise from North
      */
 	public int getInAngle() {
-		return this.inAngle * 180 / 128;
+		return getByte2() * 180 / 128;
 	}
 
     /** Return the azimuth of the last segment in this edge in integer degrees clockwise from South. */
 	public int getOutAngle() {
-		return this.outAngle * 180 / 128;
+		return getByte3() * 180 / 128;
 	}
 
+    /**
+     * The angle at the start of the edge geometry.
+     * Internal representation is -180 to +179 integer degrees mapped to -128 to +127 (brads)
+     */
+    public void setInAngle(double angle) {
+        setByte2((byte) Math.round(angle * 128 / Math.PI + 128));
+    }
+
+    /** The angle at the start of the edge geometry. Internal representation like that of inAngle. */
+    public void setOutAngle(double angle) {
+        setByte3((byte) Math.round(angle * 128 / Math.PI + 128));
+    }
+
+    private byte getByte0() {
+        return IntPackedBytes.getByte0(packed);
+    }
+
+    private byte getByte1() {
+        return IntPackedBytes.getByte1(packed);
+    }
+
+    private byte getByte2() {
+        return IntPackedBytes.getByte2(packed);
+    }
+
+    private byte getByte3() {
+        return IntPackedBytes.getByte3(packed);
+    }
+
+    private void setByte3(byte byte3) {
+        packed = IntPackedBytes.setByte3(packed, byte3);
+    }
+
+    private void setByte2(byte byte2) {
+        packed = IntPackedBytes.setByte2(packed, byte2);
+    }
+
+    private void setByte1(byte byte1) {
+        packed = IntPackedBytes.setByte1(packed, byte1);
+    }
+
+    private void setByte0(byte byte0) {
+        packed = IntPackedBytes.setByte0(packed, byte0);
+    }
 }
