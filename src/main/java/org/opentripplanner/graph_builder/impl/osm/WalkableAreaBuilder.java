@@ -377,7 +377,7 @@ public class WalkableAreaBuilder {
             double length = distanceLibrary.distance(startEndpoint.getCoordinate(),
                     endEndpoint.getCoordinate());
 
-            int cls = StreetEdge.CLASS_OTHERPATH;
+            byte cls = StreetEdge.CLASS_OTHERPATH;
             cls |= OSMFilter.getStreetClasses(areaEntity);
 
             String label = "way (area) " + areaEntity.getId() + " from " + startEndpoint.getLabel()
@@ -468,7 +468,7 @@ public class WalkableAreaBuilder {
             }
             NamedArea namedArea = new NamedArea();
             OSMWithTags areaEntity = area.parent;
-            int cls = StreetEdge.CLASS_OTHERPATH;
+            byte cls = StreetEdge.CLASS_OTHERPATH;
             cls |= OSMFilter.getStreetClasses(areaEntity);
             namedArea.setStreetClass(cls);
 

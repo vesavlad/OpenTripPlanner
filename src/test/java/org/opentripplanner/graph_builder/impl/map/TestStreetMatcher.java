@@ -232,7 +232,7 @@ public class TestStreetMatcher {
         }
         
         @Override
-        public int getStreetClass() {
+        public byte getStreetClass() {
             return StreetEdge.CLASS_STREET;
         }
 

@@ -55,14 +55,14 @@ public class StreetEdge extends Edge implements Cloneable {
     private static final long serialVersionUID = 1L;
 
     /* TODO combine these with OSM highway= flags? */
-    public static final int CLASS_STREET = 3;
-    public static final int CLASS_CROSSING = 4;
-    public static final int CLASS_OTHERPATH = 5;
-    public static final int CLASS_OTHER_PLATFORM = 8;
-    public static final int CLASS_TRAIN_PLATFORM = 16;
-    public static final int ANY_PLATFORM_MASK = 24;
-    public static final int CROSSING_CLASS_MASK = 7; // ignore platform
-    public static final int CLASS_LINK = 32; // on/offramps; OSM calls them "links"
+    public static final byte CLASS_STREET = 3;
+    public static final byte CLASS_CROSSING = 4;
+    public static final byte CLASS_OTHERPATH = 5;
+    public static final byte CLASS_OTHER_PLATFORM = 8;
+    public static final byte CLASS_TRAIN_PLATFORM = 16;
+    public static final byte ANY_PLATFORM_MASK = 24;
+    public static final byte CROSSING_CLASS_MASK = 7; // ignore platform
+    public static final byte CLASS_LINK = 32; // on/offramps; OSM calls them "links"
 
     private static final double GREENWAY_SAFETY_FACTOR = 0.1;
 
@@ -101,7 +101,7 @@ public class StreetEdge extends Edge implements Cloneable {
 
     private StreetTraversalPermission permission;
 
-    private int streetClass = CLASS_OTHERPATH;
+    private byte streetClass = CLASS_OTHERPATH;
     
     /**
      * The speed (meters / sec) at which an automobile can traverse
@@ -617,11 +617,11 @@ public class StreetEdge extends Edge implements Cloneable {
 		this.permission = permission;
 	}
 
-	public int getStreetClass() {
+	public byte getStreetClass() {
 		return streetClass;
 	}
 
-	public void setStreetClass(int streetClass) {
+	public void setStreetClass(byte streetClass) {
 		this.streetClass = streetClass;
 	}
 

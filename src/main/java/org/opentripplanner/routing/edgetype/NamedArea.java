@@ -33,7 +33,7 @@ public class NamedArea implements Serializable {
 
     private double bicycleSafetyMultiplier;
 
-    private int streetClass;
+    private byte streetClass;
 
     private StreetTraversalPermission permission;
 
@@ -65,11 +65,11 @@ public class NamedArea implements Serializable {
         return permission;
     }
 
-    public int getStreetClass() {
+    public byte getStreetClass() {
         return streetClass;
     }
 
-    public void setStreetClass(int streetClass) {
+    public void setStreetClass(byte streetClass) {
         this.streetClass = streetClass;
     }
 

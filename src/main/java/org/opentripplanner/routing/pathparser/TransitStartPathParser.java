@@ -78,7 +78,7 @@ public class TransitStartPathParser extends PathParser {
                     && (!modes.contains(TraverseMode.WALK) || !state.isBikeRenting())) {
                 Edge edge = state.getBackEdge();
                 if (edge instanceof StreetEdge) {
-                    int cls = ((StreetEdge) edge).getStreetClass();
+                    byte cls = ((StreetEdge) edge).getStreetClass();
                     return cls & StreetEdge.CROSSING_CLASS_MASK;
                 } else {
                     return StreetEdge.CLASS_OTHERPATH;
