@@ -26,13 +26,18 @@ import static org.opentripplanner.util.IntPackedBytes.setByte1;
 import static org.opentripplanner.util.IntPackedBytes.setByte2;
 import static org.opentripplanner.util.IntPackedBytes.setByte3;
 
+/**
+ * Non-exhaustive test of the {@link IntPackedBytes} class. An exhaustive version is in Git history.
+ */
 public class IntPackedBytesTest {
     @Test
     public void testDownward() {
-        byte a = MAX_VALUE, b = MAX_VALUE, c = MAX_VALUE, d = MAX_VALUE;
+        byte a = MAX_VALUE, b, c, d = MAX_VALUE;
 
         do {
+            c = -121;
             do {
+                b = -121;
                 do {
                     do {
                         final byte w, x, y, z;
@@ -56,17 +61,19 @@ public class IntPackedBytesTest {
                         assertEquals(c, x);
                         assertEquals(d, w);
                     } while (--a != MAX_VALUE);
-                } while (--b != MAX_VALUE);
-            } while (--c != MAX_VALUE);
+                } while (--b != 119);
+            } while (--c != 119);
         } while (--d != MAX_VALUE);
     }
 
     @Test
     public void testUpward() {
-        byte a = 0, b = 0, c = 0, d = 0;
+        byte a = 0, b, c, d = 0;
 
         do {
+            b = 0;
             do {
+                c = 0;
                 do {
                     do {
                         final byte w, x, y, z;
@@ -90,8 +97,8 @@ public class IntPackedBytesTest {
                         assertEquals(b, y);
                         assertEquals(a, z);
                     } while (++d != 0);
-                } while (++c != 0);
-            } while (++b != 0);
+                } while (++c != 16);
+            } while (++b != 16);
         } while (++a != 0);
     }
 }
