@@ -8,10 +8,11 @@ public enum TraverseMode {
     WALK, BICYCLE, CAR,
     TRAM, SUBWAY, RAIL, BUS, FERRY,
     CABLE_CAR, GONDOLA, FUNICULAR,
-    TRANSIT, AIRPLANE;
+    TRANSIT, AIRPLANE, TROLLEYBUS,
+    MONORAIL, SCHOOL_BUS;
 
     private static final EnumSet<TraverseMode> TRANSIT_MODES = EnumSet.of(
-        AIRPLANE, BUS, CABLE_CAR, FERRY, FUNICULAR, GONDOLA, RAIL, SUBWAY, TRAM, TRANSIT
+        AIRPLANE, BUS, CABLE_CAR, FERRY, FUNICULAR, GONDOLA, RAIL, SUBWAY, TRAM, TROLLEYBUS, MONORAIL, SCHOOL_BUS, TRANSIT
     );
 
     private static final EnumSet<TraverseMode> STREET_MODES = EnumSet.of(WALK, BICYCLE, CAR);
@@ -57,6 +58,12 @@ public enum TraverseMode {
                 return TraverseMode.GONDOLA;
             case FUNICULAR:
                 return TraverseMode.FUNICULAR;
+            case TROLLEYBUS:
+                return TraverseMode.TROLLEYBUS;
+            case MONORAIL:
+                return TraverseMode.MONORAIL;
+            case SCHOOL_BUS:
+                return TraverseMode.SCHOOL_BUS;
             default:
                 throw new IllegalArgumentException();
         }

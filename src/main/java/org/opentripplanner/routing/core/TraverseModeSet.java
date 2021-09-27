@@ -42,8 +42,13 @@ public class TraverseModeSet implements Cloneable, Serializable {
 
     private static final int MODE_AIRPLANE = 4096;
 
+    private static final int MODE_TROLLEYBUS = 2 * 4096;
+
+    private static final int MODE_MONORAIL = 4 * 4096;
+
     private static final int MODE_TRANSIT = MODE_TRAM | MODE_RAIL | MODE_SUBWAY | MODE_FUNICULAR
-            | MODE_GONDOLA | MODE_CABLE_CAR | MODE_BUS | MODE_FERRY | MODE_AIRPLANE;
+            | MODE_GONDOLA | MODE_CABLE_CAR | MODE_BUS | MODE_FERRY | MODE_AIRPLANE | MODE_TROLLEYBUS
+            | MODE_MONORAIL;
  
     private static final int MODE_ALL = MODE_TRANSIT | MODE_WALK | MODE_BICYCLE;
 
@@ -92,6 +97,10 @@ public class TraverseModeSet implements Cloneable, Serializable {
             return MODE_RAIL;
         case AIRPLANE:
             return MODE_AIRPLANE;
+        case TROLLEYBUS:
+            return MODE_TROLLEYBUS;
+        case MONORAIL:
+            return MODE_MONORAIL;
         case TRANSIT:
             return MODE_TRANSIT;
         }
@@ -157,6 +166,14 @@ public class TraverseModeSet implements Cloneable, Serializable {
 
     public boolean getAirplane() {
         return (modes & MODE_AIRPLANE) != 0;
+    }
+
+    public boolean getTrolleyBus() {
+        return (modes & MODE_TROLLEYBUS) != 0;
+    }
+
+    public boolean getMonorail() {
+        return (modes & MODE_MONORAIL) != 0;
     }
 
     public void setBicycle(boolean bicycle) {
@@ -257,6 +274,21 @@ public class TraverseModeSet implements Cloneable, Serializable {
 
     }
 
+    public void setTrolleyBus(boolean trolleyBus) {
+        if (trolleyBus) {
+            modes |= MODE_TROLLEYBUS;
+        } else {
+            modes &= ~MODE_TROLLEYBUS;
+        }
+    }
+
+    public void setMonorail(boolean monorail) {
+        if (monorail) {
+            modes |= MODE_MONORAIL;
+        } else {
+            modes &= ~MODE_MONORAIL;
+        }
+    }
     /** Returns true if the trip may use some transit mode */
     public boolean isTransit() {
         return (modes & (MODE_TRANSIT)) != 0;

@@ -5,7 +5,7 @@ import org.opentripplanner.model.TransitMode;
 public enum ApiRequestMode {
     WALK, BICYCLE, CAR,
     TRAM, SUBWAY, RAIL, BUS, COACH, FERRY,
-    CABLE_CAR, GONDOLA, FUNICULAR,
+    CABLE_CAR, GONDOLA, FUNICULAR, TROLLEYBUS, MONORAIL, SCHOOL_BUS,
     TRANSIT, AIRPLANE, FLEX;
 
     public static ApiRequestMode fromTransitMode(TransitMode transitMode) {
@@ -30,6 +30,12 @@ public enum ApiRequestMode {
                 return GONDOLA;
             case FUNICULAR:
                 return FUNICULAR;
+            case TROLLEYBUS:
+                return TROLLEYBUS;
+            case MONORAIL:
+                return MONORAIL;
+            case SCHOOL_BUS:
+                return SCHOOL_BUS;
             default:
                 throw new IllegalArgumentException("Can't convert to ApiRequestMode: " + transitMode);
         }

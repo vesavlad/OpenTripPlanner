@@ -45,6 +45,9 @@ public class TraverseModeMapper {
             case RAIL: return "RAIL";
             case SUBWAY: return "SUBWAY";
             case TRAM: return "TRAM";
+            case TROLLEYBUS: return "TROLLEYBUS";
+            case SCHOOL_BUS: return "SCHOOL_BUS";
+            case MONORAIL: return "MONORAIL";
             case TRANSIT: return "TRANSIT";
             case WALK: return "WALK";
         }
@@ -73,6 +76,9 @@ public class TraverseModeMapper {
             case RAIL: return "RAIL";
             case SUBWAY: return "SUBWAY";
             case TRAM: return "TRAM";
+            case TROLLEYBUS: return "TROLLEYBUS";
+            case MONORAIL: return "MONORAIL";
+            case SCHOOL_BUS: return "SCHOOL_BUS";
         }
         throw new IllegalArgumentException("Traverse mode not mapped: " + domain);
     }

@@ -18,7 +18,9 @@ public class TraverseModeSetTest {
         assertFalse(modeSet.getFunicular());
         assertFalse(modeSet.getGondola());
         assertFalse(modeSet.getWalk());
-        assertFalse(modeSet.getBicycle());        
+        assertFalse(modeSet.getBicycle());
+        assertFalse(modeSet.getTrolleyBus());
+        assertFalse(modeSet.getMonorail());
     }
 
     @Test
@@ -34,6 +36,8 @@ public class TraverseModeSetTest {
         assertFalse(modeSet.getFunicular());
         assertFalse(modeSet.getGondola());
         assertFalse(modeSet.getBicycle());
+        assertFalse(modeSet.getTrolleyBus());
+        assertFalse(modeSet.getMonorail());
     }
     
     @Test
@@ -50,6 +54,43 @@ public class TraverseModeSetTest {
         assertFalse(modeSet.getFunicular());
         assertFalse(modeSet.getGondola());
         assertFalse(modeSet.getWalk());
+        assertFalse(modeSet.getTrolleyBus());
+        assertFalse(modeSet.getMonorail());
     }
 
+
+    @Test
+    public void testTrolleyBusMode() {
+        TraverseModeSet modeSet = new TraverseModeSet(TraverseMode.TROLLEYBUS);
+
+        assertFalse(modeSet.getBicycle());
+        assertFalse(modeSet.getWalk());
+        assertFalse(modeSet.getCar());
+        assertTrue(modeSet.isTransit());
+        assertFalse(modeSet.getRail());
+        assertFalse(modeSet.getTram());
+        assertFalse(modeSet.getSubway());
+        assertFalse(modeSet.getFunicular());
+        assertFalse(modeSet.getGondola());
+        assertFalse(modeSet.getWalk());
+        assertTrue(modeSet.getTrolleyBus());
+    }
+
+    @Test
+    public void testMonorailMode() {
+        TraverseModeSet modeSet = new TraverseModeSet(TraverseMode.MONORAIL);
+
+        assertFalse(modeSet.getBicycle());
+        assertFalse(modeSet.getWalk());
+        assertFalse(modeSet.getCar());
+        assertTrue(modeSet.isTransit());
+        assertFalse(modeSet.getRail());
+        assertFalse(modeSet.getTram());
+        assertFalse(modeSet.getSubway());
+        assertFalse(modeSet.getFunicular());
+        assertFalse(modeSet.getGondola());
+        assertFalse(modeSet.getWalk());
+        assertFalse(modeSet.getTrolleyBus());
+        assertTrue(modeSet.getMonorail());
+    }
 }
