@@ -4,6 +4,7 @@ public enum DataSourceType {
   // Vehicle Rental
   GBFS,
   SMOOVE,
+  VELOTM,
 
   // GTFS RT
   GTFS_RT_HTTP,

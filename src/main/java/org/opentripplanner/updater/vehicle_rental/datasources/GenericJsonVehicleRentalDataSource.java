@@ -88,7 +88,7 @@ public abstract class GenericJsonVehicleRentalDataSource<T extends VehicleRental
         return true;
     }
 
-    private void parseJSON(InputStream dataStream) throws IllegalArgumentException, IOException {
+    protected void parseJSON(InputStream dataStream) throws IllegalArgumentException, IOException {
 
         ArrayList<VehicleRentalPlace> out = new ArrayList<>();
 

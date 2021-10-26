@@ -2,6 +2,8 @@ package org.opentripplanner.updater.vehicle_rental.datasources;
 
 import org.opentripplanner.ext.smoovebikerental.SmooveBikeRentalDataSource;
 import org.opentripplanner.ext.smoovebikerental.SmooveBikeRentalDataSourceParameters;
+import org.opentripplanner.ext.velotmbikerental.VeloTmBikeRentalDataSource;
+import org.opentripplanner.ext.velotmbikerental.VeloTmBikeRentalDataSourceParameters;
 import org.opentripplanner.updater.vehicle_rental.VehicleRentalDataSource;
 import org.opentripplanner.updater.vehicle_rental.datasources.params.VehicleRentalDataSourceParameters;
 import org.opentripplanner.updater.vehicle_rental.datasources.params.GbfsVehicleRentalDataSourceParameters;
@@ -19,6 +21,8 @@ public class VehicleRentalDataSourceFactory {
                 return new GbfsVehicleRentalDataSource((GbfsVehicleRentalDataSourceParameters) source);
             case SMOOVE:
                 return new SmooveBikeRentalDataSource((SmooveBikeRentalDataSourceParameters) source);
+            case VELOTM:
+                return new VeloTmBikeRentalDataSource((VeloTmBikeRentalDataSourceParameters) source);
         }
         throw new IllegalArgumentException(
                 "Unknown vehicle rental source type: " + source.getSourceType()

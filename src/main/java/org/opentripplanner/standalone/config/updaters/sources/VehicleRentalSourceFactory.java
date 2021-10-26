@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.opentripplanner.ext.smoovebikerental.SmooveBikeRentalDataSourceParameters;
+import org.opentripplanner.ext.velotmbikerental.VeloTmBikeRentalDataSourceParameters;
 import org.opentripplanner.standalone.config.NodeAdapter;
 import org.opentripplanner.updater.DataSourceType;
 import org.opentripplanner.updater.vehicle_rental.datasources.params.VehicleRentalDataSourceParameters;
@@ -23,6 +24,7 @@ public class VehicleRentalSourceFactory {
   static {
     CONFIG_MAPPING.put("gbfs", GBFS);
     CONFIG_MAPPING.put("smoove", DataSourceType.SMOOVE);
+    CONFIG_MAPPING.put("velotm", DataSourceType.VELOTM);
   }
 
   private final DataSourceType type;
@@ -53,6 +55,12 @@ public class VehicleRentalSourceFactory {
         );
       case SMOOVE:
         return new SmooveBikeRentalDataSourceParameters(
+            url(),
+            network(),
+            headers()
+        );
+      case VELOTM:
+        return new VeloTmBikeRentalDataSourceParameters(
             url(),
             network(),
             headers()
